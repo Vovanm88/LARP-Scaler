@@ -29,12 +29,6 @@
         "psnr_db": 19.5536,
         "ssim": 0.4071,
         "mae": 0.09247
-      },
-      {
-        "method": "PiD",
-        "psnr_db": 16.7071,
-        "ssim": 0.1771,
-        "mae": 0.11737
       }
     ],
     "anime": [
@@ -55,14 +49,23 @@
         "psnr_db": 17.2268,
         "ssim": 0.3653,
         "mae": 0.1097
+      }
+    ],
+    "excluded_pid_512px": {
+      "note": "The PiD_res2k_sr4x checkpoint targets ~2048px output; its 512px results show a regular lattice artifact and are not a valid measure of the method. See quality_native_2k for the corrected run.",
+      "photo": {
+        "method": "PiD",
+        "psnr_db": 16.7071,
+        "ssim": 0.1771,
+        "mae": 0.11737
       },
-      {
+      "anime": {
         "method": "PiD",
         "psnr_db": 15.7724,
         "ssim": 0.2218,
         "mae": 0.12221
       }
-    ]
+    }
   },
   "latency_1024_24_photos": {
     "protocol": "End-to-end file-processing latency on 24 real photographs. Three warm-ups and ten timed calls per image, method, and scale; 240 timed calls per cell. Model loading and output-file writing are excluded.",
@@ -122,33 +125,6 @@
         "p95_s": 1.0894
       },
       {
-        "method": "PiD",
-        "scale": 2,
-        "calls": 240,
-        "median_s": 0.9069,
-        "mean_s": 0.9386,
-        "std_s": 0.2474,
-        "p95_s": 1.3818
-      },
-      {
-        "method": "PiD",
-        "scale": 4,
-        "calls": 240,
-        "median_s": 0.905,
-        "mean_s": 0.9388,
-        "std_s": 0.2507,
-        "p95_s": 1.3893
-      },
-      {
-        "method": "PiD",
-        "scale": 8,
-        "calls": 240,
-        "median_s": 0.8397,
-        "mean_s": 0.8949,
-        "std_s": 0.2487,
-        "p95_s": 1.2727
-      },
-      {
         "method": "Real-ESRGAN",
         "scale": 2,
         "calls": 240,
@@ -175,7 +151,39 @@
         "std_s": 0.2704,
         "p95_s": 1.1343
       }
-    ]
+    ],
+    "excluded_pid_rows": {
+      "note": "Same out-of-regime PiD checkpoint as above; excluded from the headline latency table.",
+      "rows": [
+        {
+          "method": "PiD",
+          "scale": 2,
+          "calls": 240,
+          "median_s": 0.9069,
+          "mean_s": 0.9386,
+          "std_s": 0.2474,
+          "p95_s": 1.3818
+        },
+        {
+          "method": "PiD",
+          "scale": 4,
+          "calls": 240,
+          "median_s": 0.905,
+          "mean_s": 0.9388,
+          "std_s": 0.2507,
+          "p95_s": 1.3893
+        },
+        {
+          "method": "PiD",
+          "scale": 8,
+          "calls": 240,
+          "median_s": 0.8397,
+          "mean_s": 0.8949,
+          "std_s": 0.2487,
+          "p95_s": 1.2727
+        }
+      ]
+    }
   },
   "ablation_prompt_adapter_12_photos": {
     "protocol": "Twelve real photographs, 128 px input, 512 px target, x4, one refinement step, noise level 0.35, guidance 1, BF16, seed 1234.",
@@ -305,5 +313,70 @@
         "rows": 120
       }
     ]
+  },
+  "quality_native_2k": {
+    "protocol": "Corrected native PiD comparison. 12 real photographs (3-7K originals); each target is a 2048px centre crop; input is its 512px Lanczos downsample; x4; same LR/HR pairs for all methods. PiD uses its native PiD_res2k_sr4x 512->2048 setting (4 steps, BF16, seed 1234). LUA omitted: Flux-VAE decode OOM at 2048px on 32GB.",
+    "photo": [
+      {
+        "method": "LARP-Scaler",
+        "psnr_db": 31.4801,
+        "ssim": 0.8114,
+        "mae": 0.02061,
+        "n": 12
+      },
+      {
+        "method": "Real-ESRGAN",
+        "psnr_db": 29.2505,
+        "ssim": 0.7786,
+        "mae": 0.02571,
+        "n": 12
+      },
+      {
+        "method": "PiD (native 2k)",
+        "psnr_db": 26.1275,
+        "ssim": 0.6683,
+        "mae": 0.03635,
+        "n": 12
+      }
+    ]
+  },
+  "perceptual_512": {
+    "protocol": "Reference reconstruction from 128 px inputs to 512 px targets, x4, 12 images per domain. LARP-Scaler uses 1 step, sigma 0.35, guidance 1, BF16, seed 1234. LPIPS uses the AlexNet backbone; DISTS from piq. Lower is better for both. LUA is not included because its per-image outputs were not archived.",
+    "results": {
+      "photo": {
+        "LARP-Scaler": {
+          "n": 12,
+          "lpips": 0.4221099118391673,
+          "dists": 0.17660552263259888
+        },
+        "Real-ESRGAN": {
+          "n": 12,
+          "lpips": 0.3778456784784794,
+          "dists": 0.19496405124664307
+        },
+        "PiD": {
+          "n": 12,
+          "lpips": 0.9202701797087988,
+          "dists": 0.45442331830660504
+        }
+      },
+      "anime": {
+        "LARP-Scaler": {
+          "n": 12,
+          "lpips": 0.2624192874257763,
+          "dists": 0.12146941324075063
+        },
+        "Real-ESRGAN": {
+          "n": 12,
+          "lpips": 0.15371431410312653,
+          "dists": 0.12154598534107208
+        },
+        "PiD": {
+          "n": 12,
+          "lpips": 0.9967041015625,
+          "dists": 0.5233073433240255
+        }
+      }
+    }
   }
 }

@@ -41,9 +41,18 @@ def test_benchmark_source_contains_release_claims() -> None:
     anime = {row["method"]: row for row in data["quality_x4_512"]["anime"]}
     assert photo["LARP-Scaler"]["psnr_db"] == 31.8170
     assert photo["Real-ESRGAN"]["psnr_db"] == 29.6409
-    assert photo["PiD"]["psnr_db"] == 16.7071
     assert anime["LARP-Scaler"]["psnr_db"] == 28.4394
     assert anime["Real-ESRGAN"]["ssim"] == 0.8695
+    # the invalid 512px PiD run is quarantined, not shown in the headline arrays
+    assert "PiD" not in photo and "PiD" not in anime
+    assert data["quality_x4_512"]["excluded_pid_512px"]["photo"]["psnr_db"] == 16.7071
+    # the corrected native-2k PiD comparison is a separate protocol
+    native = {row["method"]: row for row in data["quality_native_2k"]["photo"]}
+    assert native["LARP-Scaler"]["psnr_db"] == 31.4801
+    assert native["PiD (native 2k)"]["psnr_db"] == 26.1275
+    # perceptual metrics present for both domains
+    perc = data["perceptual_512"]["results"]
+    assert perc["photo"]["LARP-Scaler"]["dists"] < perc["photo"]["Real-ESRGAN"]["dists"]
     assert data["ablation_prompt_adapter_12_photos"]["reported_deltas"][
         "adapter_gain_tagged_prompt_db"
     ] == 0.513800

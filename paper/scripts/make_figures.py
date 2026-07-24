@@ -306,21 +306,24 @@ def latency(data: dict, output: Path) -> None:
         1080,
         500,
         "End-to-end latency comparison",
-        "Median latency at two-times, four-times, and eight-times enlargement for four methods on twenty-four real photographs.",
+        "Median latency at two-times, four-times, and eight-times enlargement on twenty-four real photographs.",
     )
     fig.text(540, 30, "1024px output on 24 real photographs (240 timed calls per cell)", size=17, anchor="middle", bold=True)
     rows = data["latency_1024_24_photos"]["rows"]
-    methods = ["LARP-Scaler", "LUA", "PiD", "Real-ESRGAN"]
+    order = ["LARP-Scaler", "LUA", "PiD", "Real-ESRGAN"]
+    present = {row["method"] for row in rows}
+    methods = [m for m in order if m in present]
     scales = [2, 4, 8]
     x0, y0, width, height = 90, 75, 900, 325
     axes(fig, x0, y0, width, height, y_ticks=[0, 0.5, 1, 1.5, 2, 2.5, 3], y_min=0, y_max=3)
     group_width = width / len(scales)
     bar_width = 48
+    offset = (len(methods) - 1) / 2
     for scale_index, scale in enumerate(scales):
         center = x0 + group_width * (scale_index + 0.5)
         for method_index, method in enumerate(methods):
             value = next(row["median_s"] for row in rows if row["method"] == method and row["scale"] == scale)
-            x = center + (method_index - 1.5) * (bar_width + 5) - bar_width / 2
+            x = center + (method_index - offset) * (bar_width + 5) - bar_width / 2
             bar_height = value / 3 * height
             y = y0 + height - bar_height
             fig.rect(x, y, bar_width, bar_height, fill=COLORS[method], stroke=COLORS[method])
@@ -329,7 +332,7 @@ def latency(data: dict, output: Path) -> None:
     fig.text(28, 240, "Median latency (s) ↓", size=11, bold=True)
     legend_x = 230
     for index, method in enumerate(methods):
-        x = legend_x + index * 175
+        x = legend_x + index * 190
         fig.rect(x, 452, 15, 15, fill=COLORS[method], stroke=COLORS[method])
         fig.text(x + 22, 464, method, size=10)
     fig.save()

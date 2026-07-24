@@ -34,7 +34,7 @@ inference for images that do not fit in a single forward pass.
   automatic tile batching, and CUDA OOM backoff.
 - **Controlled reconstruction results.** On the 12-photo ×4 benchmark described
   below, LARP-Scaler reaches **31.817 dB PSNR**, compared with 29.641 dB for
-  Real-ESRGAN, 19.554 dB for LUA, and 16.707 dB for PiD.
+  Real-ESRGAN and 19.554 dB for LUA.
 
 ## Links
 
@@ -158,7 +158,6 @@ are better; lower MAE is better.
 | **LARP-Scaler** | **31.8170** | **0.7877** | **0.02314** |
 | Real-ESRGAN ×4 | 29.6409 | 0.7587 | 0.02846 |
 | LUA-Flux ×4 | 19.5536 | 0.4071 | 0.09247 |
-| PiD-Flux ×4 | 16.7071 | 0.1771 | 0.11737 |
 
 ### Anime images
 
@@ -167,23 +166,45 @@ are better; lower MAE is better.
 | **LARP-Scaler** | **28.4394** | 0.8560 | **0.02382** |
 | Real-ESRGAN ×4 | 26.7850 | **0.8695** | 0.02559 |
 | LUA-Flux ×4 | 17.2268 | 0.3653 | 0.10970 |
-| PiD-Flux ×4 | 15.7724 | 0.2218 | 0.12221 |
 
 LARP-Scaler has the highest PSNR and lowest MAE in both controlled sets.
-Real-ESRGAN has slightly higher SSIM on anime (0.8695 versus 0.8560). PiD is a
-perceptual pixel-diffusion decoder and LUA is a single-pass feed-forward latent
-adapter; both optimize objectives other than exact reference reconstruction, so
-their values here should not be read as an aesthetic ranking.
+Real-ESRGAN has slightly higher SSIM on anime (0.8695 versus 0.8560). LUA is a
+single-pass feed-forward latent adapter and optimizes an objective other than
+exact reference reconstruction, so its values here should not be read as an
+aesthetic ranking.
 
-> **Caveat on the PiD row.** The public checkpoint used here,
-> `PiD_res2k_sr4x`, targets ~2048 px outputs, while this protocol produces
-> 512 px. Its outputs show regular lattice structure rather than merely
-> different texture, so this row reflects that checkpoint outside its intended
-> resolution regime and is not a fair estimate of the method.
+**PiD is reported separately.** The public `PiD_res2k_sr4x` checkpoint targets
+~2048 px output; run at 512 px it produces a regular lattice artifact, so it is
+excluded from the tables above and measured under its native protocol instead:
+
+### Corrected native PiD comparison (512→2048, ×4, 12 photos)
+
+| Method | PSNR, dB ↑ | SSIM ↑ | MAE ↓ |
+|---|---:|---:|---:|
+| **LARP-Scaler** | **31.4801** | **0.8114** | **0.02061** |
+| Real-ESRGAN ×4 | 29.2505 | 0.7786 | 0.02571 |
+| PiD-Flux (native 2k) | 26.1275 | 0.6683 | 0.03635 |
+| LUA-Flux | — | — | Flux-VAE decode OOM at 2048 px on 32 GB |
+
+At its native output scale PiD is artifact-free and valid; it still trails
+LARP-Scaler and Real-ESRGAN on this strict paired metric.
 
 <p align="center">
   <img src="paper/figures/quality_comparison.svg" width="92%" alt="PSNR and SSIM comparisons for the photo and anime reconstruction sets.">
 </p>
+
+### Perceptual metrics (LPIPS / DISTS, lower is better)
+
+| Domain | Method | LPIPS ↓ | DISTS ↓ |
+|---|---|---:|---:|
+| Photo | **LARP-Scaler** | 0.4221 | **0.1766** |
+| Photo | Real-ESRGAN | **0.3778** | 0.1950 |
+| Anime | **LARP-Scaler** | 0.2624 | **0.1215** |
+| Anime | Real-ESRGAN | **0.1537** | **0.1215** |
+
+LARP-Scaler leads DISTS on photos and ties on anime, while Real-ESRGAN has the
+lower LPIPS in both domains: a distortion lead does not transfer uniformly to
+learned perceptual distances.
 
 ### Qualitative comparison
 
@@ -213,11 +234,9 @@ processing rather than GPU-only kernel time.
 |---|---:|---:|---:|
 | LARP-Scaler | **0.8119** | 0.8227 | 0.8047 |
 | LUA-Flux | 2.6323 | **0.6291** | 0.6668 |
-| PiD-Flux | 0.9069 | 0.9050 | 0.8397 |
 | Real-ESRGAN ×4 | 1.0253 | 0.6681 | **0.6134** |
 
-At ×4, LARP-Scaler is faster than PiD in this protocol, but slower than LUA and
-Real-ESRGAN. The comparison therefore supports competitive latency, not a claim
+At ×4, LARP-Scaler is slower than LUA and Real-ESRGAN. The comparison therefore supports competitive latency, not a claim
 of being universally fastest.
 
 <p align="center">

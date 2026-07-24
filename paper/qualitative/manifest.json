@@ -10,7 +10,7 @@
     },
     {
       "key": "pid",
-      "label": "PiD"
+      "label": "PiD (out of regime)"
     },
     {
       "key": "larp_scaler",

@@ -64,7 +64,7 @@ DINOv2 embeddings, two VLM-distilled quality predictors, deterministic
 artifact gates, and domain-aware handling of photographic and non-photographic
 content. On controlled $4\times$ reference reconstruction from 128 to 512
 pixels, \method obtains 31.817 dB PSNR on 12 photographs, compared with 29.641
-dB for Real-ESRGAN, 19.554 dB for LUA, and 16.707 dB for PiD. On 12 anime
+dB for Real-ESRGAN and 19.554 dB for LUA. On 12 anime
 images it obtains the highest PSNR and lowest MAE among the tested methods,
 while Real-ESRGAN retains a small SSIM advantage. An adapter ablation attributes 0.514 dB to image
 guidance in the deployed prompt configuration. These results are limited,
@@ -461,7 +461,6 @@ values are included in \texttt{paper/data/training\_run.json}.
     \textbf{\method} & \textbf{31.8170} & \textbf{0.7877} & \textbf{0.02314}\\
     Real-ESRGAN & 29.6409 & 0.7587 & 0.02846\\
     LUA & 19.5536 & 0.4071 & 0.09247\\
-    PiD & 16.7071 & 0.1771 & 0.11737\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -478,7 +477,6 @@ values are included in \texttt{paper/data/training\_run.json}.
     \textbf{\method} & \textbf{28.4394} & 0.8560 & \textbf{0.02382}\\
     Real-ESRGAN & 26.7850 & \textbf{0.8695} & 0.02559\\
     LUA & 17.2268 & 0.3653 & 0.10970\\
-    PiD & 15.7724 & 0.2218 & 0.12221\\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -491,20 +489,68 @@ advantage of 0.0135. This is an important counterexample to reducing quality to
 one headline metric.
 
 PiD is designed to synthesize high-resolution pixel detail from latent
-conditioning. Such plausible details can be useful perceptually but are
-strongly penalized when they do not match the reference pixel arrangement.
-Its numbers here carry an additional and important caveat: the public
-checkpoint we ran is \texttt{PiD\_res2k\_sr4x}, which targets roughly
-2048-pixel outputs, whereas this protocol asks for a 512-pixel output. The
-resulting images show regular lattice structure rather than merely different
-texture, so these values characterize that checkpoint outside its intended
-resolution regime and should not be read as the method's achievable quality.
-A comparison at PiD's native output scale is left to future work.
+conditioning. We therefore exclude it from the 512-pixel headline tables: the
+available public \texttt{PiD\_res2k\_sr4x} checkpoint targets roughly
+2048-pixel outputs, and its archived 512-pixel results exhibit a regular
+lattice artifact. The corrected native-resolution experiment is reported
+separately below.
 LUA optimizes a different point again: a single feed-forward latent adapter
 with scale-specific heads, which is inexpensive but is not trained to restore
 the exact reference pixels of this protocol. The reported reconstruction gaps
 for both methods should therefore not be interpreted as a general aesthetic
 ranking; they quantify agreement with a known target under one protocol.
+
+\begin{table}[t]
+  \centering
+  \caption{Corrected native PiD $4\times$ photo reconstruction (12 real
+  images). Each ground-truth target is a 2048-pixel crop from an original
+  3--7K photograph and the input is its 512-pixel Lanczos downsample.}
+  \label{tab:pid_native_quality}
+  \small
+  \begin{tabular}{lccc}
+    \toprule
+    Method & PSNR $\uparrow$ & SSIM $\uparrow$ & MAE $\downarrow$\\
+    \midrule
+    \textbf{\method} & \textbf{31.4801} & \textbf{0.8114} & \textbf{0.02061}\\
+    Real-ESRGAN & 29.2505 & 0.7786 & 0.02571\\
+    PiD (native 2k) & 26.1275 & 0.6683 & 0.03635\\
+    LUA & \multicolumn{3}{c}{Flux-VAE OOM at 2048\,px (32\,GB)}\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+At its intended 2048-pixel output, PiD no longer exhibits the regular lattice
+artifact. Its reconstruction scores remain below \method and Real-ESRGAN on
+this strict paired protocol, but they are valid measurements of the released
+PiD checkpoint rather than an out-of-regime failure.
+
+\subsection{Perceptual metrics}
+
+\begin{table}[t]
+  \centering
+  \caption{Perceptual distances on the shared 512-pixel $4\times$ sets
+  (12 images per domain; lower is better). LPIPS uses AlexNet and DISTS uses
+  \texttt{piq}. PiD is omitted here because its archived 512-pixel outputs are
+  out of regime; LUA per-image outputs were not archived.}
+  \label{tab:perceptual}
+  \small
+  \begin{tabular}{llcc}
+    \toprule
+    Domain & Method & LPIPS $\downarrow$ & DISTS $\downarrow$\\
+    \midrule
+    Photo & \method & 0.4221 & \textbf{0.1766}\\
+          & Real-ESRGAN & \textbf{0.3778} & 0.1950\\
+    \midrule
+    Anime & \method & 0.2624 & \textbf{0.1215}\\
+          & Real-ESRGAN & \textbf{0.1537} & \textbf{0.1215}\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{tab:perceptual} complements distortion metrics. \method leads on DISTS
+for photographs and matches Real-ESRGAN on anime, while Real-ESRGAN has lower
+LPIPS on both sets. A distortion-oriented lead thus does not transfer uniformly
+to learned perceptual distances.
 
 \begin{figure*}[t]
   \centering
@@ -529,13 +575,13 @@ ranking; they quantify agreement with a known target under one protocol.
     \midrule
     \method & \textbf{0.8119} & 0.8227 & 0.8047\\
     LUA & 2.6323 & \textbf{0.6291} & 0.6668\\
-    PiD & 0.9069 & 0.9050 & 0.8397\\
     Real-ESRGAN & 1.0253 & 0.6681 & \textbf{0.6134}\\
     \bottomrule
   \end{tabular}
 \end{table*}
 
-At $4\times$, \method is 9.1\% faster than PiD by median latency, but 30.8\%
+The 1024-pixel PiD latency row is excluded because it uses the same 2k-native
+checkpoint out of its intended output regime. At $4\times$, \method is 30.8\%
 slower than LUA and 23.1\% slower than Real-ESRGAN. At $2\times$ it has the
 lowest median in this protocol, while Real-ESRGAN is fastest at $8\times$.
 Consequently, the evidence supports a competitive quality--latency trade-off,
@@ -601,11 +647,12 @@ PiD on four of the twelve shared photographs. Regenerating these outputs with
 the public package and the published BF16 bundle reproduced the per-image PSNR
 values of \cref{tab:photo_quality} to within 0.003 dB, so the montage depicts
 the same system that produced the reported aggregates. The panel also makes the
-metric discussion concrete: PiD introduces visible high-frequency grid
-structure that a reference metric penalizes heavily, Real-ESRGAN produces
-smooth, conservative texture, and \method stays closest to the reference while
-still recovering edge detail. The first row is the unfavourable case, where
-Real-ESRGAN is closer to the target.
+metric discussion concrete: the 512-pixel PiD column shows the regular lattice
+artifact that led us to exclude it from the quality tables (its valid
+native-resolution scores are in \cref{tab:pid_native_quality}), Real-ESRGAN
+produces smooth, conservative texture, and \method stays closest to the
+reference while still recovering edge detail. The first row is the unfavourable
+case, where Real-ESRGAN is closer to the target.
 
 \IfFileExists{figures/qualitative_comparison.pdf}{
   \begin{figure*}[t]
@@ -648,9 +695,10 @@ compression.
 
 \paragraph{Metric coverage.}
 PSNR, SSIM, and MAE emphasize exact reconstruction and do not fully represent
-perceptual quality. LPIPS, DISTS, no-reference IQA, FID, and human preference
-have not yet been measured for the released checkpoint. This is particularly
-important when comparing against a perceptual pixel-diffusion decoder.
+perceptual quality. We additionally report LPIPS and DISTS
+(\cref{tab:perceptual}), which show that a distortion-oriented lead does not
+transfer uniformly to learned perceptual distances. No-reference IQA, FID, and
+human preference remain unmeasured for the released checkpoint.
 
 \paragraph{Protocol separation.}
 Several additional measurements exist at other resolutions and on other image
@@ -824,7 +872,9 @@ These values should be read as robustness observations, not pooled estimates.
   per-image photo PSNR to within 0.003 dB: verified.
   \item Full per-image metric tables for all twelve photo and twelve anime
   images: \todo{publish}.
-  \item LPIPS/DISTS/no-reference metrics and human study: \todo{run}.
+  \item LPIPS and DISTS on both shared sets: available in
+  \texttt{paper/data/perceptual\_metrics.json}.
+  \item No-reference IQA, FID, and human preference: \todo{run}.
   \item Public Gradio demo and arXiv page: \todo{add URLs}.
 \end{itemize}
 
