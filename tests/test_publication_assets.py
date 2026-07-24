@@ -89,7 +89,7 @@ def test_all_citations_have_bibliography_entries() -> None:
     assert cited <= entries
 
 
-def test_required_figure_pairs_exist() -> None:
+def test_required_figure_sources_and_raster_assets_exist() -> None:
     names = {
         "architecture",
         "data_pipeline",
@@ -101,20 +101,18 @@ def test_required_figure_pairs_exist() -> None:
     }
     for name in names:
         svg = PAPER / "figures" / f"{name}.svg"
-        pdf = PAPER / "figures" / f"{name}.pdf"
+        raster = PAPER / "figures" / f"{name}.png"
         assert svg.is_file() and svg.stat().st_size > 500
-        assert pdf.is_file() and pdf.stat().st_size > 500
+        assert raster.is_file() and raster.stat().st_size > 500
         assert "<title" in svg.read_text(encoding="utf-8")
 
 
 def test_tex_figure_paths_exist_or_are_explicitly_optional() -> None:
     tex = (PAPER / "main.tex").read_text(encoding="utf-8")
+    assert ".pdf}" not in tex
     paths = re.findall(r"\\includegraphics(?:\[[^\]]+\])?\{([^}]+)\}", tex)
     for relative in paths:
-        if relative == "figures/qualitative_comparison.pdf":
-            assert "\\IfFileExists{figures/qualitative_comparison.pdf}" in tex
-        else:
-            assert (PAPER / relative).is_file(), relative
+        assert (PAPER / relative).is_file(), relative
 
 
 def test_readme_has_release_links_and_explicit_todos() -> None:

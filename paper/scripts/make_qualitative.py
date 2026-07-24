@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build PDF and SVG qualitative montages from real benchmark images."""
+"""Build JPEG and SVG qualitative montages from real benchmark images."""
 
 from __future__ import annotations
 
@@ -11,8 +11,6 @@ import json
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
-from reportlab.lib.utils import ImageReader
-from reportlab.pdfgen import canvas
 
 
 CELL = 420
@@ -41,7 +39,7 @@ def fitted(image: Image.Image, size: int) -> Image.Image:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("manifest", type=Path)
-    parser.add_argument("--output", type=Path, default=Path("qualitative_comparison.pdf"))
+    parser.add_argument("--output", type=Path, default=Path("qualitative_comparison.jpg"))
     args = parser.parse_args()
 
     spec = json.loads(args.manifest.read_text(encoding="utf-8"))
@@ -64,33 +62,20 @@ def main() -> None:
         images.append(row)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    pdf = canvas.Canvas(
-        str(args.output),
-        pagesize=(width, height),
-        pageCompression=1,
-        invariant=1,
-    )
-    pdf.setTitle("LARP-Scaler qualitative comparison")
-    pdf.setFont("Helvetica-Bold", 22)
+    montage = Image.new("RGB", (width, height), "white")
+    draw = ImageDraw.Draw(montage)
+    header_font = ImageFont.load_default()
+    row_font = ImageFont.load_default()
     for index, column in enumerate(columns):
-        pdf.drawCentredString(LABEL + index * CELL + CELL / 2, height - 38, column["label"])
+        text = column["label"]
+        box = draw.textbbox((0, 0), text, font=header_font)
+        x = LABEL + index * CELL + (CELL - (box[2] - box[0])) // 2
+        draw.text((x, 20), text, fill="black", font=header_font)
     for row_index, case in enumerate(cases):
-        pdf.saveState()
-        pdf.translate(25, height - HEADER - row_index * CELL - CELL / 2)
-        pdf.rotate(90)
-        pdf.setFont("Helvetica-Bold", 18)
-        pdf.drawCentredString(0, 0, case["label"])
-        pdf.restoreState()
+        draw.text((8, HEADER + row_index * CELL + 12), case["label"], fill="black", font=row_font)
         for column_index, image in enumerate(images[row_index]):
-            pdf.drawImage(
-                ImageReader(image),
-                LABEL + column_index * CELL,
-                height - HEADER - (row_index + 1) * CELL,
-                CELL,
-                CELL,
-            )
-    pdf.showPage()
-    pdf.save()
+            montage.paste(image, (LABEL + column_index * CELL, HEADER + row_index * CELL))
+    montage.save(args.output, "JPEG", quality=92, optimize=True, progressive=True)
 
     svg_path = args.output.with_suffix(".svg")
     svg = [

@@ -33,7 +33,7 @@ Then run:
 
 ```bash
 python paper/scripts/make_qualitative.py paper/qualitative/manifest.json \
-  --output paper/figures/qualitative_comparison.pdf
+  --output paper/figures/qualitative_comparison.jpg
 ```
 
-The paper automatically replaces its explicit placeholder when the PDF exists.
+The paper embeds the generated JPEG montage directly.

@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <img src="paper/figures/pid_lua_image_upscale_examples.png" width="100%" alt="Image-upscaling examples: native PiD at 512 to 2048 pixels and LUA-FLUX at 256 to 1024 pixels, compared with Real-ESRGAN, LARP-Scaler, and ground truth.">
+  <img src="paper/figures/larp_pid_lua_image_upscale_examples.png" width="100%" alt="Image-upscaling examples: native PiD at 512 to 2048 pixels and LUA-FLUX at 256 to 1024 pixels, compared with Real-ESRGAN, LARP-Scaler, and ground truth.">
 </p>
 
 The multi-method comparison above uses two separately valid image-upscaling protocols: native
@@ -355,7 +355,7 @@ qualitative montage is built separately from real benchmark outputs stored in
 
 ```bash
 python paper/scripts/make_qualitative.py paper/qualitative/manifest.json \
-  --output paper/figures/qualitative_comparison.pdf
+  --output paper/figures/qualitative_comparison.jpg
 ```
 
 ## Limitations

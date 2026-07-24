@@ -8,7 +8,9 @@
 \usepackage{amsmath,amssymb,bm}
 \usepackage{booktabs}
 \usepackage{graphicx}
+\usepackage{float}
 \usepackage{multirow}
+\usepackage{caption}
 \usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{xspace}
@@ -44,25 +46,36 @@
 \begin{document}
 \maketitle
 
-\begin{figure*}[t]
+% These two full-width visual summaries are intentionally non-floating.  They
+% occupy dedicated single-column pages, then the body resumes in two columns.
+\clearpage
+\onecolumn
+\begin{center}
+\begin{minipage}{0.96\textwidth}
   \centering
-  \includegraphics[width=\textwidth]{figures/larp_before_after_hero.png}
-  \caption{\textbf{LARP-Scaler image upscaling.} A real $512\times512$ input
+  \includegraphics[width=\linewidth]{figures/larp_before_after_hero.png}
+  \captionof{figure}{\textbf{LARP-Scaler image upscaling.} A real $512\times512$ input
   (left) and the $2048\times2048$ output of the released $4\times$
   LARP-Scaler checkpoint (right).}
   \label{fig:larp_before_after}
-\end{figure*}
+\end{minipage}
+\end{center}
 
-\begin{figure*}[t]
+\clearpage
+\begin{center}
+\begin{minipage}{0.96\textwidth}
   \centering
-  \includegraphics[width=\textwidth]{figures/pid_lua_image_upscale_examples.png}
-  \caption{\textbf{Image-upscaling examples in valid operating regimes.}
+  \includegraphics[width=\linewidth]{figures/larp_pid_lua_image_upscale_examples.png}
+  \captionof{figure}{\textbf{Image-upscaling examples in valid operating regimes.}
   Native PiD is evaluated at $512\!\to\!2048$, while LUA-FLUX with the Flux
   VAE is evaluated at $256\!\to\!1024$; both rows use real images encoded by
   the VAE, followed by latent upscaling and final decoding. The rows are
   illustrative examples, not a cross-resolution metric comparison.}
   \label{fig:pid_lua_image_upscale_examples}
-\end{figure*}
+\end{minipage}
+\end{center}
+\clearpage
+\twocolumn
 
 \begin{abstract}
 Modern latent image generators provide expressive priors, but converting them
@@ -184,16 +197,16 @@ optimize different trade-offs: LUA focuses on a feed-forward latent adapter,
 PiD on expressive pixel-space decoding, and \method on iterative direct
 refinement of a target-sized latent.
 
-\begin{figure*}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/architecture.pdf}
+  \includegraphics[width=0.98\columnwidth]{figures/architecture.png}
   \caption{\textbf{\method overview.} The input is resized to the requested
   output geometry and encoded into the latent state refined by a SANA DiT. A
   separate encoding of the original or user-provided guidance image is
   upsampled by a three-stage adapter and injected through gated attention.
   Cached text tensors remove the text encoder from the runtime.}
   \label{fig:architecture}
-\end{figure*}
+\end{figure}
 
 \section{Method}
 \label{sec:method}
@@ -348,15 +361,15 @@ prior. We therefore built a metadata-first pipeline that profiles images at
 native resolution and preserves content diversity while filtering technical
 defects.
 
-\begin{figure*}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.98\textwidth]{figures/data_pipeline.pdf}
+  \includegraphics[width=0.98\columnwidth]{figures/data_pipeline.png}
   \caption{\textbf{Data pipeline.} Native-resolution measurements and DINOv2
   embeddings feed two VLM-distilled quality students. Deterministic gates,
   captions, and a deliberately retained defect pool produce a training-ready
   corpus without copying the source images.}
   \label{fig:data_pipeline}
-\end{figure*}
+\end{figure}
 
 \subsection{Sources and native-resolution profiling}
 
@@ -458,9 +471,9 @@ SHA-256 digest matches the public bundle and milestone 4,000:
 \texttt{c0496dd0\ldots 74ba830}. Machine-readable provenance and milestone
 values are included in \texttt{paper/data/training\_run.json}.
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\columnwidth]{figures/training_curve.pdf}
+  \includegraphics[width=\columnwidth]{figures/training_curve.png}
   \caption{Trackio milestones from the final 4,000-update direct-refinement
   stage. Training loss is a stochastic per-update measurement; validation is
   evaluated every 100 updates, with selected milestones shown here.}
@@ -469,7 +482,7 @@ values are included in \texttt{paper/data/training\_run.json}.
 
 \subsection{Controlled reconstruction}
 
-\begin{table}[t]
+\begin{table}[H]
   \centering
   \caption{Shared $4\times$ photo reconstruction set (12 images).}
   \label{tab:photo_quality}
@@ -485,7 +498,7 @@ values are included in \texttt{paper/data/training\_run.json}.
   \end{tabular}
 \end{table}
 
-\begin{table}[t]
+\begin{table}[H]
   \centering
   \caption{Shared $4\times$ anime reconstruction set (12 images).}
   \label{tab:anime_quality}
@@ -520,7 +533,7 @@ the exact reference pixels of this protocol. The reported reconstruction gaps
 for both methods should therefore not be interpreted as a general aesthetic
 ranking; they quantify agreement with a known target under one protocol.
 
-\begin{table}[t]
+\begin{table}[H]
   \centering
   \caption{Native-resolution PiD $4\times$ photo reconstruction (12 real
   images). Each ground-truth target is a 2048-pixel crop from an original
@@ -546,7 +559,7 @@ PiD checkpoint rather than an out-of-regime failure.
 
 \subsection{Perceptual metrics}
 
-\begin{table}[t]
+\begin{table}[H]
   \centering
   \caption{Perceptual distances on the shared 512-pixel $4\times$ sets
   (12 images per domain; lower is better). LPIPS uses AlexNet and DISTS uses
@@ -572,18 +585,18 @@ for photographs and matches Real-ESRGAN on anime, while Real-ESRGAN has lower
 LPIPS on both sets. A distortion-oriented lead thus does not transfer uniformly
 to learned perceptual distances.
 
-\begin{figure*}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.96\textwidth]{figures/quality_comparison.pdf}
+  \includegraphics[width=0.96\columnwidth]{figures/quality_comparison.png}
   \caption{PSNR and SSIM on the controlled photo and anime reconstruction
   sets. Exact values and MAE are reported in
   \cref{tab:photo_quality,tab:anime_quality}.}
   \label{fig:quality}
-\end{figure*}
+\end{figure}
 
 \subsection{Latency}
 
-\begin{table*}[t]
+\begin{table*}[H]
   \centering
   \caption{Median end-to-end latency in seconds for 1024-pixel output on 24
   photographs. Each cell aggregates 240 calls. Lower is better.}
@@ -607,18 +620,18 @@ lowest median in this protocol, while Real-ESRGAN is fastest at $8\times$.
 Consequently, the evidence supports a competitive quality--latency trade-off,
 not universal speed leadership.
 
-\begin{figure*}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=0.88\textwidth]{figures/latency_1024.pdf}
+  \includegraphics[width=0.88\columnwidth]{figures/latency_1024.png}
   \caption{Median end-to-end file-processing latency. The large LUA
   $2\times$ value illustrates why performance should be reported per scale
   rather than collapsed to a single average.}
   \label{fig:latency}
-\end{figure*}
+\end{figure}
 
 \subsection{Prompt and adapter ablation}
 
-\begin{table}[t]
+\begin{table}[H]
   \centering
   \caption{Selected ablation changes on 12 photographs. MSE reduction is
   computed from $\Delta$PSNR as $1-10^{-\Delta/10}$.}
@@ -652,9 +665,9 @@ only as an architecture-dependent bias. Prompt gains are positive but small,
 and shrink after image guidance is enabled, consistent with both conditions
 providing partially redundant information.
 
-\begin{figure}[t]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\columnwidth]{figures/prompt_adapter_ablation.pdf}
+  \includegraphics[width=\columnwidth]{figures/prompt_adapter_ablation.png}
   \caption{Prompt--adapter interaction. The y-axis is intentionally narrow to
   expose the prompt effect; the gap between curves is much larger.}
   \label{fig:ablation}
@@ -674,35 +687,20 @@ produces smooth, conservative texture, and \method stays closest to the
 reference while still recovering edge detail. The first row is the unfavourable
 case, where Real-ESRGAN is closer to the target.
 
-\IfFileExists{figures/qualitative_comparison.pdf}{
-  \begin{figure*}[t]
-    \centering
-    \includegraphics[width=\textwidth]{figures/qualitative_comparison.pdf}
-    \caption{\textbf{Qualitative comparison} on the shared $4\times$ photo set,
-    produced with the released checkpoint and the public package under the
-    protocol of \cref{tab:photo_quality}. Cases are not hand-picked: the twelve
-    photographs were ranked by per-image PSNR difference between \method and
-    Real-ESRGAN and four evenly spaced ranks were taken, so the panel spans the
-    observed range. Photo 01 is the case where \method is \emph{worse} than
-    Real-ESRGAN ($-0.70$ dB); the remaining rows are $+1.32$, $+3.78$ and
-    $+6.80$ dB. The low-resolution column is enlarged with nearest-neighbour
-    sampling to show the actual input pixels.}
-    \label{fig:qualitative}
-  \end{figure*}
-}{
-  \begin{figure*}[t]
-    \centering
-    \fbox{\parbox[c][3.7cm][c]{0.94\textwidth}{
-      \centering
-      \textbf{Qualitative comparison intentionally pending.}\\[3pt]
-      Add real LR, baseline, \method, and ground-truth images using
-      \texttt{paper/qualitative/README.md}; do not replace experimental
-      evidence with generated placeholders.
-    }}
-    \caption{Reserved layout for the release-time qualitative comparison.}
-    \label{fig:qualitative}
-  \end{figure*}
-}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/qualitative_comparison.jpg}
+  \caption{\textbf{Qualitative comparison} on the shared $4\times$ photo set,
+  produced with the released checkpoint and the public package under the
+  protocol of \cref{tab:photo_quality}. Cases are not hand-picked: the twelve
+  photographs were ranked by per-image PSNR difference between \method and
+  Real-ESRGAN and four evenly spaced ranks were taken, so the panel spans the
+  observed range. Photo 01 is the case where \method is \emph{worse} than
+  Real-ESRGAN ($-0.70$ dB); the remaining rows are $+1.32$, $+3.78$ and
+  $+6.80$ dB. The low-resolution column is enlarged with nearest-neighbour
+  sampling to show the actual input pixels.}
+  \label{fig:qualitative}
+\end{figure}
 
 \section{Limitations}
 \label{sec:limitations}
@@ -770,7 +768,7 @@ restricted to reference reconstruction on small controlled sets.
 \section{Dataset Composition}
 \label{app:dataset}
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \caption{Final training metadata by source.}
   \label{tab:dataset_sources}
@@ -794,9 +792,9 @@ restricted to reference reconstruction on small controlled sets.
   \end{tabular}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[H]
   \centering
-  \includegraphics[width=\columnwidth]{figures/dataset_composition.pdf}
+  \includegraphics[width=\columnwidth]{figures/dataset_composition.png}
   \caption{Dataset source counts on a linear scale.}
   \label{fig:dataset_composition}
 \end{figure}
@@ -804,7 +802,7 @@ restricted to reference reconstruction on small controlled sets.
 \section{Full Prompt--Adapter Matrix}
 \label{app:ablation}
 
-\begin{table*}[h]
+\begin{table*}[H]
   \centering
   \caption{Prompt and adapter states, sorted by component rather than score.}
   \label{tab:full_ablation}
@@ -850,7 +848,7 @@ These values should be read as robustness observations, not pooled estimates.
 \section{Final-Stage Training Milestones}
 \label{app:training}
 
-\begin{table}[h]
+\begin{table}[H]
   \centering
   \caption{Selected Trackio milestones for the released direct-refinement
   stage. The scalar training loss includes flow, reconstruction, and
