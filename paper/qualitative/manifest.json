@@ -1,0 +1,66 @@
+{
+  "columns": [
+    {
+      "key": "input",
+      "label": "LR input (128 px)"
+    },
+    {
+      "key": "real_esrgan",
+      "label": "Real-ESRGAN"
+    },
+    {
+      "key": "pid",
+      "label": "PiD"
+    },
+    {
+      "key": "larp_scaler",
+      "label": "LARP-Scaler"
+    },
+    {
+      "key": "ground_truth",
+      "label": "Ground truth"
+    }
+  ],
+  "cases": [
+    {
+      "label": "Photo 01",
+      "images": {
+        "input": "photo-01/input.png",
+        "real_esrgan": "photo-01/real-esrgan.png",
+        "pid": "photo-01/pid.png",
+        "larp_scaler": "photo-01/larp-scaler.png",
+        "ground_truth": "photo-01/ground-truth.png"
+      }
+    },
+    {
+      "label": "Photo 02",
+      "images": {
+        "input": "photo-02/input.png",
+        "real_esrgan": "photo-02/real-esrgan.png",
+        "pid": "photo-02/pid.png",
+        "larp_scaler": "photo-02/larp-scaler.png",
+        "ground_truth": "photo-02/ground-truth.png"
+      }
+    },
+    {
+      "label": "Photo 03",
+      "images": {
+        "input": "photo-03/input.png",
+        "real_esrgan": "photo-03/real-esrgan.png",
+        "pid": "photo-03/pid.png",
+        "larp_scaler": "photo-03/larp-scaler.png",
+        "ground_truth": "photo-03/ground-truth.png"
+      }
+    },
+    {
+      "label": "Photo 04",
+      "images": {
+        "input": "photo-04/input.png",
+        "real_esrgan": "photo-04/real-esrgan.png",
+        "pid": "photo-04/pid.png",
+        "larp_scaler": "photo-04/larp-scaler.png",
+        "ground_truth": "photo-04/ground-truth.png"
+      }
+    }
+  ]
+}

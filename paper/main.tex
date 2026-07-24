@@ -589,13 +589,30 @@ providing partially redundant information.
 
 \subsection{Qualitative comparison}
 
+\Cref{fig:qualitative} shows the released checkpoint against Real-ESRGAN and
+PiD on four of the twelve shared photographs. Regenerating these outputs with
+the public package and the published BF16 bundle reproduced the per-image PSNR
+values of \cref{tab:photo_quality} to within 0.003 dB, so the montage depicts
+the same system that produced the reported aggregates. The panel also makes the
+metric discussion concrete: PiD introduces visible high-frequency grid
+structure that a reference metric penalizes heavily, Real-ESRGAN produces
+smooth, conservative texture, and \method stays closest to the reference while
+still recovering edge detail. The first row is the unfavourable case, where
+Real-ESRGAN is closer to the target.
+
 \IfFileExists{figures/qualitative_comparison.pdf}{
   \begin{figure*}[t]
     \centering
     \includegraphics[width=\textwidth]{figures/qualitative_comparison.pdf}
-    \caption{Qualitative comparison on held-out reconstruction examples.
-    All crops must be generated from the same LR inputs and displayed at the
-    same scale.}
+    \caption{\textbf{Qualitative comparison} on the shared $4\times$ photo set,
+    produced with the released checkpoint and the public package under the
+    protocol of \cref{tab:photo_quality}. Cases are not hand-picked: the twelve
+    photographs were ranked by per-image PSNR difference between \method and
+    Real-ESRGAN and four evenly spaced ranks were taken, so the panel spans the
+    observed range. Photo 01 is the case where \method is \emph{worse} than
+    Real-ESRGAN ($-0.70$ dB); the remaining rows are $+1.32$, $+3.78$ and
+    $+6.80$ dB. The low-resolution column is enlarged with nearest-neighbour
+    sampling to show the actual input pixels.}
     \label{fig:qualitative}
   \end{figure*}
 }{
@@ -795,7 +812,12 @@ These values should be read as robustness observations, not pooled estimates.
   \texttt{paper/data/training\_run.json}.
   \item Deterministic SVG/PDF figure generator: available.
   \item Exact quality and latency protocols: documented.
-  \item Per-image public evaluation outputs: \todo{add}.
+  \item Qualitative per-case outputs for four shared photographs, regenerated
+  from the public checkpoint: available in \texttt{paper/qualitative/}.
+  \item Independent re-run of the released package reproducing the reported
+  per-image photo PSNR to within 0.003 dB: verified.
+  \item Full per-image metric tables for all twelve photo and twelve anime
+  images: \todo{publish}.
   \item LPIPS/DISTS/no-reference metrics and human study: \todo{run}.
   \item Public Gradio demo and arXiv page: \todo{add URLs}.
 \end{itemize}

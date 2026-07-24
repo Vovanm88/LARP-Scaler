@@ -21,9 +21,19 @@ LABEL = 48
 
 
 def fitted(image: Image.Image, size: int) -> Image.Image:
+    """Scale an image to fill the montage cell.
+
+    Low-resolution inputs are smaller than the cell and must be enlarged so that
+    every column is displayed at the same physical size. Enlargement uses
+    nearest-neighbour so the montage shows the actual low-resolution pixels
+    instead of an implicitly interpolated version of the input.
+    """
     output = Image.new("RGB", (size, size), "white")
     copy = image.copy()
-    copy.thumbnail((size, size), Image.Resampling.LANCZOS)
+    scale = min(size / copy.width, size / copy.height)
+    target = (max(1, round(copy.width * scale)), max(1, round(copy.height * scale)))
+    resample = Image.Resampling.LANCZOS if scale < 1 else Image.Resampling.NEAREST
+    copy = copy.resize(target, resample)
     output.paste(copy, ((size - copy.width) // 2, (size - copy.height) // 2))
     return output
 
