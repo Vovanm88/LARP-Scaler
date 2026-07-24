@@ -88,8 +88,10 @@ protocol-matched Lanczos baseline (33.434 dB). The same distortion--generation
 trade-off appears on 12 anime images. A separate 48-photo, 2048-pixel matrix
 evaluates all three scales; at $8\times$, \method is within 0.086 dB PSNR of
 Lanczos, while interpolation retains a larger advantage at $2\times$ and
-$4\times$. LPIPS and DISTS results are mixed, and 95\% bootstrap intervals are
-wide on the 12-image sets. Disabling the trained adapter branch changes PSNR by
+$4\times$. Lanczos does not retain this lead under learned metrics: \method
+has lower LPIPS on both controlled domains, while photo DISTS differs by only
+0.0013. The 95\% bootstrap intervals are wide on the 12-image sets. Disabling
+the trained adapter branch changes PSNR by
 0.514 dB, whereas matched rather than mismatched guidance accounts for 0.079
 dB under the same protocol. These measurements characterize specific
 reconstruction settings rather than universal perceptual superiority.
@@ -712,27 +714,37 @@ PiD checkpoint rather than an out-of-regime failure.
   \centering
   \caption{Perceptual distances on the shared 512-pixel $4\times$ sets
   (12 images per domain; lower is better). LPIPS uses AlexNet and DISTS uses
-  \texttt{piq}. PiD is omitted here because its archived 512-pixel outputs are
-  out of regime; LUA per-image outputs were not archived.}
+  \texttt{piq}. Interpolation methods operate on the same saved LR inputs.
+  PiD is omitted because its archived 512-pixel outputs are out of regime;
+  LUA per-image outputs were not archived.}
   \label{tab:perceptual}
   \small
   \begin{tabular}{llcc}
     \toprule
     Domain & Method & LPIPS $\downarrow$ & DISTS $\downarrow$\\
     \midrule
-    Photo & \method & 0.4221 & \textbf{0.1766}\\
+    \multirow{4}{*}{Photo}
+          & \method & 0.4221 & 0.1766\\
           & Real-ESRGAN & \textbf{0.3778} & 0.1950\\
+          & Bicubic & 0.4551 & \textbf{0.1726}\\
+          & Lanczos & 0.4718 & 0.1753\\
     \midrule
-    Anime & \method & 0.2624 & \textbf{0.1215}\\
+    \multirow{4}{*}{Anime}
+          & \method & 0.2624 & \textbf{0.1215}\\
           & Real-ESRGAN & \textbf{0.1537} & \textbf{0.1215}\\
+          & Bicubic & 0.2956 & 0.1253\\
+          & Lanczos & 0.2927 & 0.1268\\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\Cref{tab:perceptual} complements distortion metrics. \method leads on DISTS
-for photographs and matches Real-ESRGAN on anime, while Real-ESRGAN has lower
-LPIPS on both sets. A distortion-oriented lead thus does not transfer uniformly
-to learned perceptual distances.
+\Cref{tab:perceptual} changes the interpretation of the distortion tables.
+Lanczos no longer leads: on photo LPIPS it trails \method by 0.050 and on anime
+LPIPS it trails by 0.030. Bicubic obtains the lowest photo DISTS, although its
+95\% interval overlaps those of Lanczos and the learned methods are not
+recomputed here with matched intervals. Real-ESRGAN remains best on LPIPS in
+both domains, while \method is best or tied on anime DISTS. Thus no method
+dominates both exact reconstruction and learned perceptual similarity.
 
 \begin{figure}[H]
   \centering
@@ -768,6 +780,30 @@ slower than LUA and 23.1\% slower than Real-ESRGAN. At $2\times$ it has the
 lowest median in this protocol, while Real-ESRGAN is fastest at $8\times$.
 Consequently, the evidence supports a competitive quality--latency trade-off,
 not universal speed leadership.
+
+\begin{table}[H]
+  \centering
+  \caption{Separate PiD latency measurement at its native
+  $512\!\to\!2048$ $4\times$ operating point on three photographs. The model
+  is loaded once; 3 warm-ups and 10 timed calls are run per image.}
+  \label{tab:pid_native_latency}
+  \small
+  \begin{tabular}{lcccc}
+    \toprule
+    Method & Calls & Median (s) & Mean (s) & P10--P90 (s)\\
+    \midrule
+    PiD (native 2k) & 30 & 1.537 & 1.538 & 1.524--1.548\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\Cref{tab:pid_native_latency} restores the missing PiD speed measurement
+without mixing resolutions. It includes input conversion, Flux-VAE encoding,
+four PiD denoising steps, and CPU/PIL output conversion, but excludes model
+loading and file writing. Peak allocated GPU memory was 19.34\,GiB on the
+RTX~5090. Because the 1024-pixel table uses 24 different source photographs,
+the native PiD row is reported separately rather than used for a direct speed
+ranking.
 
 \begin{figure}[H]
   \centering
@@ -924,7 +960,9 @@ $2\times$, $4\times$, and $8\times$. On the two 12-image controlled sets,
 protocol-matched interpolation retains the overall distortion advantage. The
 separate 48-photo matrix confirms operation at all three scales and shows that
 the PSNR gap to Lanczos narrows to 0.086 dB at $8\times$. Learned perceptual
-metrics do not produce a uniform ranking. The adapter-on ablation measures a
+metrics reverse part of the interpolation ranking: \method has lower LPIPS
+than Lanczos and Bicubic on both controlled domains, while Bicubic narrowly
+leads photo DISTS. The adapter-on ablation measures a
 0.514 dB branch effect, but matched rather than mismatched guidance explains
 only 0.079 dB under the same protocol. These results position \method as a
 practical generative refinement system rather than a replacement for
@@ -1035,6 +1073,29 @@ and metric; no results from the 12-image and 48-image protocols are pooled.
       & \method & 28.439 [25.931, 31.187] & 0.856 [0.802, 0.901] & 0.0238 [0.0177, 0.0308]\\
       & Real-ESRGAN & 26.785 [25.434, 28.047] & 0.869 [0.828, 0.901] & 0.0256 [0.0216, 0.0305]\\
       & LUA & 17.227 [16.441, 18.025] & 0.365 [0.329, 0.402] & 0.1097 [0.1004, 0.1190]\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Interpolation perceptual distances with 95\% bootstrap confidence
+  intervals on the controlled $4\times$ sets. Intervals use 10,000 image-level
+  resamples with seed 1234.}
+  \label{tab:perceptual_interpolation_ci}
+  \small
+  \setlength{\tabcolsep}{5pt}
+  \begin{tabular}{llcc}
+    \toprule
+    Domain & Method & LPIPS [95\% CI] & DISTS [95\% CI]\\
+    \midrule
+    \multirow{2}{*}{Photo}
+      & Bicubic & 0.455 [0.351, 0.550] & 0.173 [0.141, 0.206]\\
+      & Lanczos & 0.472 [0.363, 0.567] & 0.175 [0.144, 0.209]\\
+    \midrule
+    \multirow{2}{*}{Anime}
+      & Bicubic & 0.296 [0.222, 0.370] & 0.125 [0.104, 0.141]\\
+      & Lanczos & 0.293 [0.221, 0.365] & 0.127 [0.106, 0.142]\\
     \bottomrule
   \end{tabular}
 \end{table}

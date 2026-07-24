@@ -279,6 +279,18 @@
       ]
     }
   },
+  "latency_pid_native_2k": {
+    "protocol": "Steady-state PiD latency at its native 512->2048 x4 operating point on three saved photo inputs. The model is loaded once. Each image receives three warm-ups and ten timed calls. Input conversion, Flux-VAE encoding, four PiD steps, and CPU/PIL output conversion are included; model loading and file writing are excluded. NVIDIA GeForce RTX 5090, BF16, CFG 1, seed 1234.",
+    "raw_data": "paper/data/pid_native_latency.json",
+    "checkpoint": "PiD_res2k_sr4x_official_flux_distill_4step",
+    "images": 3,
+    "timed_calls": 30,
+    "median_s": 1.537282127479557,
+    "mean_s": 1.5382758754771202,
+    "p10_s": 1.523819192359224,
+    "p90_s": 1.5480010708095506,
+    "peak_memory_gib": 19.337265491485596
+  },
   "ablation_prompt_adapter_12_photos": {
     "protocol": "Twelve real photographs, 128 px input, 512 px target, x4, one refinement step, noise level 0.35, guidance 1, BF16, seed 1234.",
     "rows": [
@@ -435,7 +447,13 @@
     ]
   },
   "perceptual_512": {
-    "protocol": "Reference reconstruction from 128 px inputs to 512 px targets, x4, 12 images per domain. LARP-Scaler uses 1 step, sigma 0.35, guidance 1, BF16, seed 1234. LPIPS uses the AlexNet backbone; DISTS from piq. Lower is better for both. LUA is not included because its per-image outputs were not archived.",
+    "protocol": "Reference reconstruction from the same saved 128 px inputs to 512 px targets, x4, 12 images per domain. Bicubic and Lanczos resize the saved LR inputs with Pillow. LARP-Scaler uses 1 step, sigma 0.35, guidance 1, BF16, seed 1234. LPIPS uses the AlexNet backbone; DISTS is from piq. Lower is better for both. LUA is not included because its per-image outputs were not archived.",
+    "interpolation_per_image": "paper/data/perceptual_baselines_per_image.csv",
+    "bootstrap": {
+      "samples": 10000,
+      "seed": 1234,
+      "unit": "image"
+    },
     "results": {
       "photo": {
         "LARP-Scaler": {
@@ -447,6 +465,24 @@
           "n": 12,
           "lpips": 0.3778456784784794,
           "dists": 0.19496405124664307
+        },
+        "Bicubic": {
+          "n": 12,
+          "lpips": 0.4551080136249463,
+          "lpips_ci95_low": 0.35117039000615474,
+          "lpips_ci95_high": 0.5503599923104047,
+          "dists": 0.17255734900633493,
+          "dists_ci95_low": 0.1414960996558269,
+          "dists_ci95_high": 0.2056485825528701
+        },
+        "Lanczos": {
+          "n": 12,
+          "lpips": 0.4717755677799384,
+          "lpips_ci95_low": 0.36346968049183487,
+          "lpips_ci95_high": 0.5674815916145841,
+          "dists": 0.17533726493517557,
+          "dists_ci95_low": 0.14391861607631046,
+          "dists_ci95_high": 0.2085542706151803
         },
         "PiD": {
           "n": 12,
@@ -464,6 +500,24 @@
           "n": 12,
           "lpips": 0.15371431410312653,
           "dists": 0.12154598534107208
+        },
+        "Bicubic": {
+          "n": 12,
+          "lpips": 0.2955761620153983,
+          "lpips_ci95_low": 0.22216820057171088,
+          "lpips_ci95_high": 0.36950567473346985,
+          "dists": 0.12525746723016104,
+          "dists_ci95_low": 0.10375553257763385,
+          "dists_ci95_high": 0.1413135250409444
+        },
+        "Lanczos": {
+          "n": 12,
+          "lpips": 0.2926676229884227,
+          "lpips_ci95_low": 0.2209737494122237,
+          "lpips_ci95_high": 0.3647027898579836,
+          "dists": 0.12675216794013977,
+          "dists_ci95_low": 0.10589963383972645,
+          "dists_ci95_high": 0.1420087875177463
         },
         "PiD": {
           "n": 12,

@@ -230,14 +230,19 @@ LARP-Scaler and Real-ESRGAN on this strict paired metric.
 
 | Domain | Method | LPIPS ↓ | DISTS ↓ |
 |---|---|---:|---:|
-| Photo | **LARP-Scaler** | 0.4221 | **0.1766** |
+| Photo | LARP-Scaler | 0.4221 | 0.1766 |
 | Photo | Real-ESRGAN | **0.3778** | 0.1950 |
-| Anime | **LARP-Scaler** | 0.2624 | **0.1215** |
+| Photo | Bicubic | 0.4551 | **0.1726** |
+| Photo | Lanczos | 0.4718 | 0.1753 |
+| Anime | LARP-Scaler | 0.2624 | **0.1215** |
 | Anime | Real-ESRGAN | **0.1537** | **0.1215** |
+| Anime | Bicubic | 0.2956 | 0.1253 |
+| Anime | Lanczos | 0.2927 | 0.1268 |
 
-LARP-Scaler leads DISTS on photos and ties on anime, while Real-ESRGAN has the
-lower LPIPS in both domains: a distortion lead does not transfer uniformly to
-learned perceptual distances.
+Lanczos leads the distortion metrics but not the learned metrics: LARP-Scaler
+has lower LPIPS on both domains, while Bicubic narrowly leads photo DISTS.
+Real-ESRGAN remains best on LPIPS. No method dominates both exact
+reconstruction and learned perceptual similarity.
 
 ### Qualitative comparison
 
@@ -271,6 +276,12 @@ processing rather than GPU-only kernel time.
 
 At ×4, LARP-Scaler is slower than LUA and Real-ESRGAN. The comparison therefore supports competitive latency, not a claim
 of being universally fastest.
+
+PiD is measured separately at its intended **512→2048 ×4** resolution:
+**1.537 s median** across 30 timed calls on three photographs (3 warm-ups and
+10 calls per image). This steady-state measurement includes input conversion,
+Flux-VAE encoding, four PiD steps, and CPU/PIL conversion, but not model loading
+or file writing. It is not mixed into the 1024-pixel ranking.
 
 <p align="center">
   <img src="paper/figures/latency_1024.svg" width="88%" alt="Median end-to-end latency at x2, x4 and x8 for LARP-Scaler, LUA, PiD and Real-ESRGAN.">

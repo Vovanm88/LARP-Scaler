@@ -62,9 +62,15 @@ def test_benchmark_source_contains_release_claims() -> None:
     native = {row["method"]: row for row in data["quality_native_2k"]["photo"]}
     assert native["LARP-Scaler"]["psnr_db"] == 31.4801
     assert native["PiD (native 2k)"]["psnr_db"] == 26.1275
+    pid_latency = data["latency_pid_native_2k"]
+    assert pid_latency["timed_calls"] == 30
+    assert round(pid_latency["median_s"], 3) == 1.537
     # perceptual metrics present for both domains
     perc = data["perceptual_512"]["results"]
     assert perc["photo"]["LARP-Scaler"]["dists"] < perc["photo"]["Real-ESRGAN"]["dists"]
+    assert perc["photo"]["LARP-Scaler"]["lpips"] < perc["photo"]["Lanczos"]["lpips"]
+    assert perc["photo"]["Bicubic"]["dists"] < perc["photo"]["Lanczos"]["dists"]
+    assert perc["anime"]["LARP-Scaler"]["lpips"] < perc["anime"]["Bicubic"]["lpips"]
     assert data["ablation_prompt_adapter_12_photos"]["reported_deltas"][
         "adapter_gain_tagged_prompt_db"
     ] == 0.513800
@@ -181,6 +187,46 @@ def test_revision_metrics_are_complete_and_self_consistent() -> None:
         assert f"{group['ssim_ci95_high']:.3f}" in tex
         assert f"{group['mae_ci95_low']:.4f}" in tex
         assert f"{group['mae_ci95_high']:.4f}" in tex
+
+
+def test_interpolation_perceptual_metrics_are_complete() -> None:
+    metrics = json.loads(
+        (PAPER / "data" / "perceptual_metrics.json").read_text(encoding="utf-8")
+    )
+    with (PAPER / "data" / "perceptual_baselines_per_image.csv").open(
+        encoding="utf-8", newline=""
+    ) as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 2 * 2 * 12
+    for domain in ("photo", "anime"):
+        for method in ("Bicubic", "Lanczos"):
+            selected = [
+                row
+                for row in rows
+                if row["domain"] == domain and row["method"] == method
+            ]
+            result = metrics["results"][domain][method]
+            assert len(selected) == result["n"] == 12
+            for metric in ("lpips", "dists"):
+                mean = sum(float(row[metric]) for row in selected) / len(selected)
+                assert abs(mean - result[metric]) < 1e-12
+                assert result[f"{metric}_ci95_low"] <= mean
+                assert mean <= result[f"{metric}_ci95_high"]
+
+
+def test_native_pid_latency_raw_data_matches_aggregate() -> None:
+    raw = json.loads(
+        (PAPER / "data" / "pid_native_latency.json").read_text(encoding="utf-8")
+    )
+    benchmark = json.loads(
+        (PAPER / "data" / "benchmarks.json").read_text(encoding="utf-8")
+    )["latency_pid_native_2k"]
+    rows = raw["rows"]
+    assert len(rows) == raw["summary"]["n"] == benchmark["timed_calls"] == 30
+    assert all(row["output_size"] == [2048, 2048] for row in rows)
+    assert raw["protocol"]["input_size"] == [512, 512]
+    assert raw["protocol"]["steps"] == 4
+    assert raw["summary"]["median_seconds"] == benchmark["median_s"]
 
 
 def test_training_source_matches_released_run() -> None:

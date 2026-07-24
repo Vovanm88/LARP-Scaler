@@ -1,23 +1,22 @@
 {
-  "protocol": "Reference reconstruction from the same saved 128 px inputs to 512 px targets, x4, 12 images per domain. Bicubic and Lanczos resize the saved LR inputs with Pillow. LARP-Scaler uses 1 step, sigma 0.35, guidance 1, BF16, seed 1234. LPIPS uses the AlexNet backbone; DISTS is from piq. Lower is better for both. LUA is not included because its per-image outputs were not archived.",
-  "interpolation_per_image": "paper/data/perceptual_baselines_per_image.csv",
-  "bootstrap": {
-    "samples": 10000,
-    "seed": 1234,
-    "unit": "image"
+  "protocol": {
+    "input_size": [
+      128,
+      128
+    ],
+    "target_size": [
+      512,
+      512
+    ],
+    "scale": 4,
+    "images_per_domain": 12,
+    "lpips_backbone": "alex",
+    "dists_implementation": "piq",
+    "bootstrap_samples": 10000,
+    "bootstrap_seed": 1234
   },
   "results": {
     "photo": {
-      "LARP-Scaler": {
-        "n": 12,
-        "lpips": 0.4221099118391673,
-        "dists": 0.17660552263259888
-      },
-      "Real-ESRGAN": {
-        "n": 12,
-        "lpips": 0.3778456784784794,
-        "dists": 0.19496405124664307
-      },
       "Bicubic": {
         "n": 12,
         "lpips": 0.4551080136249463,
@@ -35,24 +34,9 @@
         "dists": 0.17533726493517557,
         "dists_ci95_low": 0.14391861607631046,
         "dists_ci95_high": 0.2085542706151803
-      },
-      "PiD": {
-        "n": 12,
-        "lpips": 0.9202701797087988,
-        "dists": 0.45442331830660504
       }
     },
     "anime": {
-      "LARP-Scaler": {
-        "n": 12,
-        "lpips": 0.2624192874257763,
-        "dists": 0.12146941324075063
-      },
-      "Real-ESRGAN": {
-        "n": 12,
-        "lpips": 0.15371431410312653,
-        "dists": 0.12154598534107208
-      },
       "Bicubic": {
         "n": 12,
         "lpips": 0.2955761620153983,
@@ -70,11 +54,6 @@
         "dists": 0.12675216794013977,
         "dists_ci95_low": 0.10589963383972645,
         "dists_ci95_high": 0.1420087875177463
-      },
-      "PiD": {
-        "n": 12,
-        "lpips": 0.9967041015625,
-        "dists": 0.5233073433240255
       }
     }
   }

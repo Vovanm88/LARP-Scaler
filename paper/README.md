@@ -10,11 +10,21 @@ reproducible figures.
 - `data/benchmarks.json` — single machine-readable source for reported
   aggregate measurements;
 - `data/revision/` — per-image reconstruction metrics and bootstrap intervals;
+- `data/perceptual_baselines_per_image.csv` — per-image LPIPS/DISTS for
+  Bicubic and Lanczos on the controlled sets;
+- `data/perceptual_baselines.json` — their aggregates and seeded bootstrap
+  confidence intervals;
+- `data/pid_native_latency.json` — raw native 512-to-2048 PiD latency calls
+  and the aggregate timing;
 - `data/training_run.json` — progressive curriculum, recovered final-stage
   config, Trackio provenance, checkpoint hash, runtime, and selected loss
   milestones;
 - `scripts/compute_revision_metrics.py` — validates saved pair IDs and sizes,
   computes Bicubic/Lanczos rows, and produces seeded bootstrap intervals;
+- `scripts/compute_perceptual_baselines.py` — computes matched interpolation
+  LPIPS/DISTS values and image-level bootstrap intervals;
+- `scripts/benchmark_pid_native_latency.py` — steady-state PiD timing at its
+  native 512-to-2048 operating point;
 - `scripts/make_figures.py` — deterministic SVG/PDF/PNG figure generator;
 - `scripts/make_qualitative.py` — real-image qualitative montage builder;
 - `figures/` — generated vector figures;
