@@ -194,6 +194,7 @@ are better; lower MAE is better.
 | LARP-Scaler | 31.8170 | 0.7877 | 0.02314 |
 | Real-ESRGAN ×4 | 29.6409 | 0.7587 | 0.02846 |
 | LUA-Flux ×4 | 19.5536 | 0.4071 | 0.09247 |
+| PiD† (forced 512 px) | 16.7071 | 0.1771 | 0.11737 |
 
 ### Anime images
 
@@ -204,12 +205,15 @@ are better; lower MAE is better.
 | LARP-Scaler | 28.4394 | 0.8560 | 0.02382 |
 | Real-ESRGAN ×4 | 26.7850 | **0.8695** | 0.02559 |
 | LUA-Flux ×4 | 17.2268 | 0.3653 | 0.10970 |
+| PiD† (forced 512 px) | 15.7724 | 0.2218 | 0.12221 |
 
 LARP-Scaler has the highest PSNR and lowest MAE among the tested learned
 methods. Protocol-matched interpolation is stronger on paired distortion
 metrics because the inputs are Lanczos downscales and interpolation does not
 synthesize new texture. Real-ESRGAN has the highest anime SSIM. These values
-should not be read as an aesthetic ranking.
+should not be read as an aesthetic ranking. †The released PiD checkpoint is
+designed for roughly 2048-pixel output; its forced 512-pixel output has a
+regular lattice artifact and is shown only for completeness.
 
 **PiD is reported separately.** The public `PiD_res2k_sr4x` checkpoint targets
 ~2048 px output; run at 512 px it produces a regular lattice artifact, so it is
@@ -239,10 +243,12 @@ LARP-Scaler and Real-ESRGAN on this strict paired metric.
 | Photo | Real-ESRGAN | **0.3778** | 0.1950 |
 | Photo | Bicubic | 0.4551 | **0.1726** |
 | Photo | Lanczos | 0.4718 | 0.1753 |
+| Photo | PiD† (forced 512 px) | 0.9203 | 0.4544 |
 | Anime | LARP-Scaler | 0.2624 | **0.1215** |
 | Anime | Real-ESRGAN | **0.1537** | **0.1215** |
 | Anime | Bicubic | 0.2956 | 0.1253 |
 | Anime | Lanczos | 0.2927 | 0.1268 |
+| Anime | PiD† (forced 512 px) | 0.9967 | 0.5233 |
 
 Lanczos leads the distortion metrics but not the learned metrics: LARP-Scaler
 has lower LPIPS on both domains, while Bicubic narrowly leads photo DISTS.
@@ -278,9 +284,14 @@ processing rather than GPU-only kernel time.
 | LARP-Scaler | **0.8119** | 0.8227 | 0.8047 |
 | LUA-Flux | 2.6323 | **0.6291** | 0.6668 |
 | Real-ESRGAN ×4 | 1.0253 | 0.6681 | **0.6134** |
+| PiD† (forced 1024 px) | 0.9069 | 0.9050 | 0.8397 |
+| PiD‡ (native 512→2048) | — | 1.537 | — |
 
 At ×4, LARP-Scaler is slower than LUA and Real-ESRGAN. The comparison therefore supports competitive latency, not a claim
-of being universally fastest.
+of being universally fastest. †The forced PiD row uses the same 1024-pixel
+output protocol as the table but runs its 2K-specialized checkpoint outside
+the intended regime. ‡The native PiD row is a separate 2048-pixel measurement
+and is not directly ranked against the 1024-pixel rows.
 
 PiD is measured separately at its intended **512→2048 ×4** resolution:
 **1.537 s median** across 30 timed calls on three photographs (3 warm-ups and
