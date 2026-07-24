@@ -56,7 +56,7 @@ inference for images that do not fit in a single forward pass.
 | Model weights | [VladimirM388/larpscaler-v2-bf16](https://huggingface.co/VladimirM388/larpscaler-v2-bf16) |
 | Colab notebook | [Open `larpscaler_inference.ipynb`](https://colab.research.google.com/github/Vovanm88/LARP-Scaler/blob/main/notebooks/larpscaler_inference.ipynb) |
 | Source code | [Vovanm88/LARP-Scaler](https://github.com/Vovanm88/LARP-Scaler) |
-| Gradio demo | **TODO:** add the public Space URL |
+| Gradio demo | [Open the LARP-Scaler Space](https://huggingface.co/spaces/Anonumous/LARP-Scaler) |
 | Paper | **TODO:** add the arXiv and Hugging Face Paper Page URLs |
 
 ## Installation
