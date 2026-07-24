@@ -8,10 +8,14 @@
 [![License](https://img.shields.io/badge/code%20license-Apache--2.0-blue)](LICENSE)
 
 <p align="center">
+  <img src="paper/figures/larp_before_after_hero.png" width="100%" alt="LARP-Scaler before and after: a 512 by 512 real photo input and a LARP-Scaler 4x 2048 by 2048 output.">
+</p>
+
+<p align="center">
   <img src="paper/figures/pid_lua_image_upscale_examples.png" width="100%" alt="Image-upscaling examples: native PiD at 512 to 2048 pixels and LUA-FLUX at 256 to 1024 pixels, compared with Real-ESRGAN, LARP-Scaler, and ground truth.">
 </p>
 
-The examples above use two separately valid image-upscaling protocols: native
+The multi-method comparison above uses two separately valid image-upscaling protocols: native
 PiD operates at **512→2048**, while LUA-FLUX with the Flux VAE operates at
 **256→1024**. They are visual examples rather than a shared metric ranking
 across the two resolutions.
