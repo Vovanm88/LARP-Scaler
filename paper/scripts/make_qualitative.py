@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""Build PDF and SVG qualitative montages from real benchmark images."""
+
+from __future__ import annotations
+
+import argparse
+import base64
+import html
+import io
+import json
+from pathlib import Path
+
+from PIL import Image, ImageDraw, ImageFont
+from reportlab.lib.utils import ImageReader
+from reportlab.pdfgen import canvas
+
+
+CELL = 420
+HEADER = 60
+LABEL = 48
+
+
+def fitted(image: Image.Image, size: int) -> Image.Image:
+    output = Image.new("RGB", (size, size), "white")
+    copy = image.copy()
+    copy.thumbnail((size, size), Image.Resampling.LANCZOS)
+    output.paste(copy, ((size - copy.width) // 2, (size - copy.height) // 2))
+    return output
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("manifest", type=Path)
+    parser.add_argument("--output", type=Path, default=Path("qualitative_comparison.pdf"))
+    args = parser.parse_args()
+
+    spec = json.loads(args.manifest.read_text(encoding="utf-8"))
+    columns = spec["columns"]
+    cases = spec["cases"]
+    if not columns or not cases:
+        raise ValueError("The manifest must contain non-empty 'columns' and 'cases' lists")
+
+    width = LABEL + CELL * len(columns)
+    height = HEADER + CELL * len(cases)
+    images: list[list[Image.Image]] = []
+    for case in cases:
+        row = []
+        for column in columns:
+            path = (args.manifest.parent / case["images"][column["key"]]).resolve()
+            if not path.is_file():
+                raise FileNotFoundError(f"Missing qualitative image: {path}")
+            with Image.open(path) as opened:
+                row.append(fitted(opened.convert("RGB"), CELL))
+        images.append(row)
+
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    pdf = canvas.Canvas(
+        str(args.output),
+        pagesize=(width, height),
+        pageCompression=1,
+        invariant=1,
+    )
+    pdf.setTitle("LARP-Scaler qualitative comparison")
+    pdf.setFont("Helvetica-Bold", 22)
+    for index, column in enumerate(columns):
+        pdf.drawCentredString(LABEL + index * CELL + CELL / 2, height - 38, column["label"])
+    for row_index, case in enumerate(cases):
+        pdf.saveState()
+        pdf.translate(25, height - HEADER - row_index * CELL - CELL / 2)
+        pdf.rotate(90)
+        pdf.setFont("Helvetica-Bold", 18)
+        pdf.drawCentredString(0, 0, case["label"])
+        pdf.restoreState()
+        for column_index, image in enumerate(images[row_index]):
+            pdf.drawImage(
+                ImageReader(image),
+                LABEL + column_index * CELL,
+                height - HEADER - (row_index + 1) * CELL,
+                CELL,
+                CELL,
+            )
+    pdf.showPage()
+    pdf.save()
+
+    svg_path = args.output.with_suffix(".svg")
+    svg = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" role="img" viewBox="0 0 {width} {height}">',
+        "<title>LARP-Scaler qualitative comparison</title>",
+        '<rect width="100%" height="100%" fill="white"/>',
+    ]
+    for index, column in enumerate(columns):
+        x = LABEL + index * CELL + CELL / 2
+        svg.append(
+            f'<text x="{x}" y="38" text-anchor="middle" font-family="Arial" font-size="22" '
+            f'font-weight="700">{html.escape(column["label"])}</text>'
+        )
+    for row_index, case in enumerate(cases):
+        cy = HEADER + row_index * CELL + CELL / 2
+        svg.append(
+            f'<text x="26" y="{cy}" text-anchor="middle" transform="rotate(-90 26 {cy})" '
+            f'font-family="Arial" font-size="18" font-weight="700">{html.escape(case["label"])}</text>'
+        )
+        for column_index, image in enumerate(images[row_index]):
+            buffer = io.BytesIO()
+            image.save(buffer, format="JPEG", quality=93)
+            encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+            x = LABEL + column_index * CELL
+            y = HEADER + row_index * CELL
+            svg.append(
+                f'<image x="{x}" y="{y}" width="{CELL}" height="{CELL}" '
+                f'href="data:image/jpeg;base64,{encoded}"/>'
+            )
+    svg.append("</svg>")
+    svg_path.write_text("\n".join(svg) + "\n", encoding="utf-8")
+    print(f"Wrote {args.output} and {svg_path}")
+
+
+if __name__ == "__main__":
+    main()

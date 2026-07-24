@@ -16,6 +16,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
 notebook = ["ipywidgets>=8.0", "jupyterlab>=4.0"]
+paper = ["reportlab>=4.0"]
 
 [project.scripts]
 larpscale = "larpscaler.cli:main"

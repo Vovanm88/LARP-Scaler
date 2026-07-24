@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "scope": "Final direct-refinement stage of the released checkpoint; this is not the model's complete pretraining history.",
+  "provenance": {
+    "config": "supups_upscaler_v2_direct_refine.yaml",
+    "trackio_project": "sana-supups-upscaler-v2-direct-refine",
+    "trackio_run_id": "36b004bca18e41c89ec1112340d5f930",
+    "trackio_run_name": "brave-forest-1",
+    "released_transformer_sha256": "c0496dd040a34adced02ab8bd1c6f2d12617f9d3ed8b80793d2e4796747ba830",
+    "source_checkpoint": "supups-upscaler-v1-sft/checkpoint-6000",
+    "source_run": {
+      "trackio_project": "sana-supups-upscaler-v1-sft",
+      "trackio_run_id": "f63598f2f9334cadb6640aa2ff9a1dd4",
+      "trackio_run_name": "dainty-sunset-0",
+      "available_steps": 10000,
+      "selected_step": 6000
+    }
+  },
+  "configuration": {
+    "updates": 4000,
+    "resolution_px": 1024,
+    "source_decode_size_px": 2048,
+    "downsample_factors": [2, 4, 8],
+    "degraded_input_probability": 1.0,
+    "per_device_batch_size": 2,
+    "training_processes": 3,
+    "gradient_accumulation_steps": 16,
+    "effective_batch_size": 96,
+    "cache_producer_device": "cuda:0",
+    "precision": "bf16",
+    "distributed_optimizer": "DeepSpeed ZeRO-2",
+    "optimizer": "AdamW",
+    "learning_rate": 0.00002,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.01,
+    "cooldown_ratio": 0.01,
+    "plateau_factor": 0.8,
+    "plateau_patience": 4,
+    "max_grad_norm": 2.0,
+    "seed": 6769,
+    "objective": {
+      "name": "flow",
+      "scheduler": "z_image",
+      "shift": 3.0,
+      "num_train_timesteps": 1000,
+      "weighting": "none",
+      "t_sampling_bias": 2.0,
+      "reconstruction_weight": 0.3,
+      "high_frequency_weight": 0.5,
+      "high_frequency_type": "laplacian",
+      "decode_resolution_px": 512,
+      "decoder_unfreeze_step": 1000000
+    },
+    "data": {
+      "validation_fraction": 0.01,
+      "split_seed": 52,
+      "minimum_quality_score": 0.8,
+      "include_bad_pool": false,
+      "caption_preference": "short",
+      "prompt_dropout": 0.075,
+      "tag_probability": 0.5
+    },
+    "validation": {
+      "every_steps": 100,
+      "batches": 8,
+      "seed": 1234
+    }
+  },
+  "runtime": {
+    "started_at_utc": "2026-07-05T14:40:05.917547+00:00",
+    "finished_at_utc": "2026-07-06T04:14:28.149341+00:00",
+    "trackio_total_seconds": 49006.474704866996,
+    "trackio_total_hours": 13.612909640240832,
+    "final_effective_samples_per_second": 8.462749252635223,
+    "peak_allocated_gb_logging_process": 21.77043581008911,
+    "hardware": "4 x NVIDIA GeForce RTX 5090: 3 training processes plus 1 online cache producer"
+  },
+  "loss_definition": "train/loss = train/flow_loss + 0.3 * train/reconstruction_loss + 0.5 * train/high_frequency_loss",
+  "milestones": [
+    {
+      "step": 1,
+      "train_loss": 1.2748384475708008,
+      "flow_loss": 1.197913408279419,
+      "reconstruction_loss": 0.1894562691450119,
+      "high_frequency_loss": 0.04017649590969086,
+      "learning_rate": 5.000000000000001e-7,
+      "validation_loss": null
+    },
+    {
+      "step": 100,
+      "train_loss": 0.1639794111251831,
+      "flow_loss": 0.09797557443380356,
+      "reconstruction_loss": 0.15092280507087708,
+      "high_frequency_loss": 0.0414540097117424,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.19539400935173035
+    },
+    {
+      "step": 500,
+      "train_loss": 0.15290209650993347,
+      "flow_loss": 0.08888450264930725,
+      "reconstruction_loss": 0.14629477262496948,
+      "high_frequency_loss": 0.04025832563638687,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.167155459523201
+    },
+    {
+      "step": 1000,
+      "train_loss": 0.15256068110466003,
+      "flow_loss": 0.08745225518941879,
+      "reconstruction_loss": 0.14859092235565186,
+      "high_frequency_loss": 0.041062261909246445,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.15769562125205994
+    },
+    {
+      "step": 1500,
+      "train_loss": 0.13941513001918793,
+      "flow_loss": 0.08073708415031433,
+      "reconstruction_loss": 0.13528594374656677,
+      "high_frequency_loss": 0.036184512078762054,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.1534210741519928
+    },
+    {
+      "step": 2000,
+      "train_loss": 0.1451946198940277,
+      "flow_loss": 0.08517110347747803,
+      "reconstruction_loss": 0.13586276769638062,
+      "high_frequency_loss": 0.038529347628355026,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.15081490576267242
+    },
+    {
+      "step": 2500,
+      "train_loss": 0.15736453235149384,
+      "flow_loss": 0.08520947396755219,
+      "reconstruction_loss": 0.16119277477264404,
+      "high_frequency_loss": 0.047594428062438965,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.1494249403476715
+    },
+    {
+      "step": 3000,
+      "train_loss": 0.14203330874443054,
+      "flow_loss": 0.07859521359205246,
+      "reconstruction_loss": 0.14362069964408875,
+      "high_frequency_loss": 0.04070376977324486,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.14757679402828217
+    },
+    {
+      "step": 3500,
+      "train_loss": 0.1450267732143402,
+      "flow_loss": 0.07653553783893585,
+      "reconstruction_loss": 0.15084636211395264,
+      "high_frequency_loss": 0.046474676579236984,
+      "learning_rate": 0.00002,
+      "validation_loss": 0.14656564593315125
+    },
+    {
+      "step": 4000,
+      "train_loss": 0.12878504395484924,
+      "flow_loss": 0.0740203857421875,
+      "reconstruction_loss": 0.1244579553604126,
+      "high_frequency_loss": 0.03485453873872757,
+      "learning_rate": 0.0,
+      "validation_loss": 0.14520353078842163
+    }
+  ]
+}

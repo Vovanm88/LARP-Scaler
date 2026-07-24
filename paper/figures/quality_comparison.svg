@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1120 650">
+<title id="title">Controlled reconstruction quality</title>
+<desc id="desc">PSNR and SSIM comparisons on twelve photo and twelve anime images at four-times enlargement.</desc>
+<rect width="1120" height="650" fill="#ffffff"/>
+<text x="560.00" y="30.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="18.00" font-weight="700" text-anchor="middle">Controlled ×4 reference reconstruction (12 images per domain)</text>
+<text x="280.00" y="85.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="14.00" font-weight="700" text-anchor="middle">Photo — PSNR (dB) ↑</text>
+<line x1="70.00" y1="295.25" x2="490.00" y2="295.25" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="299.25" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">15</text>
+<line x1="70.00" y1="246.50" x2="490.00" y2="246.50" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="250.50" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">20</text>
+<line x1="70.00" y1="197.75" x2="490.00" y2="197.75" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="201.75" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">25</text>
+<line x1="70.00" y1="149.00" x2="490.00" y2="149.00" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="153.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">30</text>
+<line x1="70.00" y1="305.00" x2="490.00" y2="305.00" stroke="#64748b" stroke-width="1.00"/>
+<line x1="70.00" y1="110.00" x2="70.00" y2="305.00" stroke="#64748b" stroke-width="1.00"/>
+<rect x="92.05" y="131.28" width="60.90" height="173.72" rx="0.00" fill="#2563eb" stroke="#2563eb" stroke-width="1.00"/>
+<text x="122.50" y="124.28" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">31.82</text>
+<text x="122.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LARP-Scaler</text>
+<rect x="197.05" y="152.50" width="60.90" height="152.50" rx="0.00" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.00"/>
+<text x="227.50" y="145.50" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">29.64</text>
+<text x="227.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">Real-ESRGAN</text>
+<rect x="302.05" y="250.85" width="60.90" height="54.15" rx="0.00" fill="#10b981" stroke="#10b981" stroke-width="1.00"/>
+<text x="332.50" y="243.85" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">19.55</text>
+<text x="332.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LUA</text>
+<rect x="407.05" y="278.61" width="60.90" height="26.39" rx="0.00" fill="#db2777" stroke="#db2777" stroke-width="1.00"/>
+<text x="437.50" y="271.61" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">16.71</text>
+<text x="437.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">PiD</text>
+<text x="830.00" y="85.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="14.00" font-weight="700" text-anchor="middle">Anime — PSNR (dB) ↑</text>
+<line x1="620.00" y1="293.53" x2="1040.00" y2="293.53" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="297.53" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">15</text>
+<line x1="620.00" y1="236.18" x2="1040.00" y2="236.18" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="240.18" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">20</text>
+<line x1="620.00" y1="178.82" x2="1040.00" y2="178.82" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="182.82" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">25</text>
+<line x1="620.00" y1="121.47" x2="1040.00" y2="121.47" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="125.47" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">30</text>
+<line x1="620.00" y1="305.00" x2="1040.00" y2="305.00" stroke="#64748b" stroke-width="1.00"/>
+<line x1="620.00" y1="110.00" x2="620.00" y2="305.00" stroke="#64748b" stroke-width="1.00"/>
+<rect x="642.05" y="139.37" width="60.90" height="165.63" rx="0.00" fill="#2563eb" stroke="#2563eb" stroke-width="1.00"/>
+<text x="672.50" y="132.37" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">28.44</text>
+<text x="672.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LARP-Scaler</text>
+<rect x="747.05" y="158.35" width="60.90" height="146.65" rx="0.00" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.00"/>
+<text x="777.50" y="151.35" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">26.79</text>
+<text x="777.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">Real-ESRGAN</text>
+<rect x="852.05" y="267.99" width="60.90" height="37.01" rx="0.00" fill="#10b981" stroke="#10b981" stroke-width="1.00"/>
+<text x="882.50" y="260.99" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">17.23</text>
+<text x="882.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LUA</text>
+<rect x="957.05" y="284.67" width="60.90" height="20.33" rx="0.00" fill="#db2777" stroke="#db2777" stroke-width="1.00"/>
+<text x="987.50" y="277.67" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">15.77</text>
+<text x="987.50" y="324.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">PiD</text>
+<text x="280.00" y="365.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="14.00" font-weight="700" text-anchor="middle">Photo — SSIM ↑</text>
+<line x1="70.00" y1="560.62" x2="490.00" y2="560.62" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="564.62" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.2</text>
+<line x1="70.00" y1="511.88" x2="490.00" y2="511.88" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="515.88" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.4</text>
+<line x1="70.00" y1="463.12" x2="490.00" y2="463.12" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="467.12" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.6</text>
+<line x1="70.00" y1="414.38" x2="490.00" y2="414.38" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="62.00" y="418.38" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.8</text>
+<line x1="70.00" y1="585.00" x2="490.00" y2="585.00" stroke="#64748b" stroke-width="1.00"/>
+<line x1="70.00" y1="390.00" x2="70.00" y2="585.00" stroke="#64748b" stroke-width="1.00"/>
+<rect x="92.05" y="417.37" width="60.90" height="167.63" rx="0.00" fill="#2563eb" stroke="#2563eb" stroke-width="1.00"/>
+<text x="122.50" y="410.37" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.788</text>
+<text x="122.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LARP-Scaler</text>
+<rect x="197.05" y="424.44" width="60.90" height="160.56" rx="0.00" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.00"/>
+<text x="227.50" y="417.44" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.759</text>
+<text x="227.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">Real-ESRGAN</text>
+<rect x="302.05" y="510.14" width="60.90" height="74.86" rx="0.00" fill="#10b981" stroke="#10b981" stroke-width="1.00"/>
+<text x="332.50" y="503.14" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.407</text>
+<text x="332.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LUA</text>
+<rect x="407.05" y="566.21" width="60.90" height="18.79" rx="0.00" fill="#db2777" stroke="#db2777" stroke-width="1.00"/>
+<text x="437.50" y="559.21" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.177</text>
+<text x="437.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">PiD</text>
+<text x="830.00" y="365.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="14.00" font-weight="700" text-anchor="middle">Anime — SSIM ↑</text>
+<line x1="620.00" y1="562.06" x2="1040.00" y2="562.06" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="566.06" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.2</text>
+<line x1="620.00" y1="516.18" x2="1040.00" y2="516.18" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="520.18" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.4</text>
+<line x1="620.00" y1="470.29" x2="1040.00" y2="470.29" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="474.29" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.6</text>
+<line x1="620.00" y1="424.41" x2="1040.00" y2="424.41" stroke="#e2e8f0" stroke-width="1.00"/>
+<text x="612.00" y="428.41" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">0.8</text>
+<line x1="620.00" y1="585.00" x2="1040.00" y2="585.00" stroke="#64748b" stroke-width="1.00"/>
+<line x1="620.00" y1="390.00" x2="620.00" y2="585.00" stroke="#64748b" stroke-width="1.00"/>
+<rect x="642.05" y="411.56" width="60.90" height="173.44" rx="0.00" fill="#2563eb" stroke="#2563eb" stroke-width="1.00"/>
+<text x="672.50" y="404.56" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.856</text>
+<text x="672.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LARP-Scaler</text>
+<rect x="747.05" y="408.47" width="60.90" height="176.53" rx="0.00" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.00"/>
+<text x="777.50" y="401.47" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.870</text>
+<text x="777.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">Real-ESRGAN</text>
+<rect x="852.05" y="524.14" width="60.90" height="60.86" rx="0.00" fill="#10b981" stroke="#10b981" stroke-width="1.00"/>
+<text x="882.50" y="517.14" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.365</text>
+<text x="882.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">LUA</text>
+<rect x="957.05" y="557.06" width="60.90" height="27.94" rx="0.00" fill="#db2777" stroke="#db2777" stroke-width="1.00"/>
+<text x="987.50" y="550.06" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="700" text-anchor="middle">0.222</text>
+<text x="987.50" y="604.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="middle">PiD</text>
+</svg>

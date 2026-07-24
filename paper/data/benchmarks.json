@@ -1,0 +1,309 @@
+{
+  "metadata": {
+    "project": "LARP-Scaler",
+    "hardware": "NVIDIA GeForce RTX 5090",
+    "quality_metrics": {
+      "psnr_db": "higher",
+      "ssim": "higher",
+      "mae": "lower"
+    },
+    "latency_unit": "seconds"
+  },
+  "quality_x4_512": {
+    "protocol": "Reference reconstruction from 128 px inputs to 512 px targets. Each domain contains 12 images.",
+    "photo": [
+      {
+        "method": "LARP-Scaler",
+        "psnr_db": 31.817,
+        "ssim": 0.7877,
+        "mae": 0.02314
+      },
+      {
+        "method": "Real-ESRGAN",
+        "psnr_db": 29.6409,
+        "ssim": 0.7587,
+        "mae": 0.02846
+      },
+      {
+        "method": "LUA",
+        "psnr_db": 19.5536,
+        "ssim": 0.4071,
+        "mae": 0.09247
+      },
+      {
+        "method": "PiD",
+        "psnr_db": 16.7071,
+        "ssim": 0.1771,
+        "mae": 0.11737
+      }
+    ],
+    "anime": [
+      {
+        "method": "LARP-Scaler",
+        "psnr_db": 28.4394,
+        "ssim": 0.856,
+        "mae": 0.02382
+      },
+      {
+        "method": "Real-ESRGAN",
+        "psnr_db": 26.785,
+        "ssim": 0.8695,
+        "mae": 0.02559
+      },
+      {
+        "method": "LUA",
+        "psnr_db": 17.2268,
+        "ssim": 0.3653,
+        "mae": 0.1097
+      },
+      {
+        "method": "PiD",
+        "psnr_db": 15.7724,
+        "ssim": 0.2218,
+        "mae": 0.12221
+      }
+    ]
+  },
+  "latency_1024_24_photos": {
+    "protocol": "End-to-end file-processing latency on 24 real photographs. Three warm-ups and ten timed calls per image, method, and scale; 240 timed calls per cell. Model loading and output-file writing are excluded.",
+    "rows": [
+      {
+        "method": "LARP-Scaler",
+        "scale": 2,
+        "calls": 240,
+        "median_s": 0.8119,
+        "mean_s": 0.8495,
+        "std_s": 0.2722,
+        "p95_s": 1.3587
+      },
+      {
+        "method": "LARP-Scaler",
+        "scale": 4,
+        "calls": 240,
+        "median_s": 0.8227,
+        "mean_s": 0.8634,
+        "std_s": 0.2408,
+        "p95_s": 1.2588
+      },
+      {
+        "method": "LARP-Scaler",
+        "scale": 8,
+        "calls": 240,
+        "median_s": 0.8047,
+        "mean_s": 0.8653,
+        "std_s": 0.2672,
+        "p95_s": 1.3209
+      },
+      {
+        "method": "LUA",
+        "scale": 2,
+        "calls": 240,
+        "median_s": 2.6323,
+        "mean_s": 2.6325,
+        "std_s": 0.3017,
+        "p95_s": 3.0832
+      },
+      {
+        "method": "LUA",
+        "scale": 4,
+        "calls": 240,
+        "median_s": 0.6291,
+        "mean_s": 0.6763,
+        "std_s": 0.1961,
+        "p95_s": 0.9893
+      },
+      {
+        "method": "LUA",
+        "scale": 8,
+        "calls": 240,
+        "median_s": 0.6668,
+        "mean_s": 0.7256,
+        "std_s": 0.2862,
+        "p95_s": 1.0894
+      },
+      {
+        "method": "PiD",
+        "scale": 2,
+        "calls": 240,
+        "median_s": 0.9069,
+        "mean_s": 0.9386,
+        "std_s": 0.2474,
+        "p95_s": 1.3818
+      },
+      {
+        "method": "PiD",
+        "scale": 4,
+        "calls": 240,
+        "median_s": 0.905,
+        "mean_s": 0.9388,
+        "std_s": 0.2507,
+        "p95_s": 1.3893
+      },
+      {
+        "method": "PiD",
+        "scale": 8,
+        "calls": 240,
+        "median_s": 0.8397,
+        "mean_s": 0.8949,
+        "std_s": 0.2487,
+        "p95_s": 1.2727
+      },
+      {
+        "method": "Real-ESRGAN",
+        "scale": 2,
+        "calls": 240,
+        "median_s": 1.0253,
+        "mean_s": 1.0642,
+        "std_s": 0.266,
+        "p95_s": 1.5093
+      },
+      {
+        "method": "Real-ESRGAN",
+        "scale": 4,
+        "calls": 240,
+        "median_s": 0.6681,
+        "mean_s": 0.7127,
+        "std_s": 0.2808,
+        "p95_s": 1.2347
+      },
+      {
+        "method": "Real-ESRGAN",
+        "scale": 8,
+        "calls": 240,
+        "median_s": 0.6134,
+        "mean_s": 0.6651,
+        "std_s": 0.2704,
+        "p95_s": 1.1343
+      }
+    ]
+  },
+  "ablation_prompt_adapter_12_photos": {
+    "protocol": "Twelve real photographs, 128 px input, 512 px target, x4, one refinement step, noise level 0.35, guidance 1, BF16, seed 1234.",
+    "rows": [
+      {
+        "prompt": "Empty",
+        "adapter": "Off",
+        "psnr_db": 31.285856,
+        "ssim": 0.783891,
+        "mae": 0.024537
+      },
+      {
+        "prompt": "Detailed",
+        "adapter": "Off",
+        "psnr_db": 31.302412,
+        "ssim": 0.783989,
+        "mae": 0.024495
+      },
+      {
+        "prompt": "Detailed + photo",
+        "adapter": "Off",
+        "psnr_db": 31.30399,
+        "ssim": 0.783969,
+        "mae": 0.024491
+      },
+      {
+        "prompt": "Empty",
+        "adapter": "Correct image",
+        "psnr_db": 31.811783,
+        "ssim": 0.787725,
+        "mae": 0.023156
+      },
+      {
+        "prompt": "Detailed",
+        "adapter": "Correct image",
+        "psnr_db": 31.81745,
+        "ssim": 0.787747,
+        "mae": 0.023143
+      },
+      {
+        "prompt": "Detailed + photo",
+        "adapter": "Correct image",
+        "psnr_db": 31.817791,
+        "ssim": 0.787734,
+        "mae": 0.023143
+      },
+      {
+        "prompt": "Detailed + photo",
+        "adapter": "Wrong image",
+        "psnr_db": 31.738986,
+        "ssim": 0.78765,
+        "mae": 0.023208
+      }
+    ],
+    "reported_deltas": {
+      "adapter_gain_tagged_prompt_db": 0.5138,
+      "correct_vs_wrong_image_tagged_prompt_db": 0.078804,
+      "detailed_prompt_adapter_off_db": 0.016556,
+      "detailed_prompt_adapter_on_db": 0.005667,
+      "released_vs_untrained_backbone_tagged_prompt_db": 10.555032
+    },
+    "untrained_backbone_rows": [
+      {
+        "prompt": "Empty",
+        "adapter": "Off",
+        "psnr_db": 21.258,
+        "ssim": 0.69671,
+        "mae": 0.075979
+      },
+      {
+        "prompt": "Detailed",
+        "adapter": "Off",
+        "psnr_db": 21.255834,
+        "ssim": 0.696634,
+        "mae": 0.076013
+      },
+      {
+        "prompt": "Detailed + photo",
+        "adapter": "Off",
+        "psnr_db": 21.262759,
+        "ssim": 0.696799,
+        "mae": 0.075949
+      }
+    ],
+    "untrained_backbone_note": "Same 12 photographs and same one-step protocol, evaluated on the SANA backbone before the direct-refinement stage."
+  },
+  "dataset": {
+    "total_rows": 288423,
+    "clean_kept_approx": 264000,
+    "bad_pool": 2500,
+    "anime_total": 18873,
+    "sources": [
+      {
+        "source": "CommonCatalog",
+        "rows": 100046
+      },
+      {
+        "source": "PD12M",
+        "rows": 99558
+      },
+      {
+        "source": "4KLSDB",
+        "rows": 43977
+      },
+      {
+        "source": "Unsplash",
+        "rows": 24849
+      },
+      {
+        "source": "yande",
+        "rows": 8979
+      },
+      {
+        "source": "konachan",
+        "rows": 6912
+      },
+      {
+        "source": "danbooru",
+        "rows": 2982
+      },
+      {
+        "source": "DIV8K",
+        "rows": 1000
+      },
+      {
+        "source": "fine-t2i",
+        "rows": 120
+      }
+    ]
+  }
+}

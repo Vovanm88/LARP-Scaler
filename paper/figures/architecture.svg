@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1120 330">
+<title id="title">LARP-Scaler architecture</title>
+<desc id="desc">Low-resolution input is resized and encoded for direct SANA latent refinement; an independent guidance image enters through a gated adapter.</desc>
+<rect width="1120" height="330" fill="#ffffff"/>
+<text x="24.00" y="30.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="18.00" font-weight="700" text-anchor="start">Direct latent refinement with independent image guidance</text>
+<rect x="25.00" y="80.00" width="135.00" height="90.00" rx="10.00" fill="#ffffff" stroke="#64748b" stroke-width="1.60"/>
+<text x="92.50" y="110.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">LR image</text>
+<text x="92.50" y="132.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">PIL or file</text>
+<rect x="205.00" y="80.00" width="145.00" height="90.00" rx="10.00" fill="#ffffff" stroke="#64748b" stroke-width="1.60"/>
+<text x="277.50" y="110.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">Lanczos resize</text>
+<text x="277.50" y="132.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">target geometry</text>
+<rect x="395.00" y="80.00" width="145.00" height="90.00" rx="10.00" fill="#ffffff" stroke="#64748b" stroke-width="1.60"/>
+<text x="467.50" y="110.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">AutoencoderDC</text>
+<text x="467.50" y="132.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">32-channel latent</text>
+<rect x="600.00" y="65.00" width="190.00" height="120.00" rx="10.00" fill="#ffffff" stroke="#2563eb" stroke-width="1.60"/>
+<text x="695.00" y="95.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">SANA DiT refiner</text>
+<text x="695.00" y="117.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">flow-matching steps</text>
+<text x="695.00" y="132.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">+ cached text condition</text>
+<rect x="845.00" y="80.00" width="125.00" height="90.00" rx="10.00" fill="#ffffff" stroke="#64748b" stroke-width="1.60"/>
+<text x="907.50" y="110.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">VAE decode</text>
+<text x="907.50" y="132.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">HR image</text>
+<rect x="205.00" y="220.00" width="145.00" height="80.00" rx="10.00" fill="#ffffff" stroke="#f59e0b" stroke-width="1.60"/>
+<text x="277.50" y="250.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">Guidance image</text>
+<text x="277.50" y="272.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">original or custom</text>
+<rect x="395.00" y="220.00" width="145.00" height="80.00" rx="10.00" fill="#ffffff" stroke="#f59e0b" stroke-width="1.60"/>
+<text x="467.50" y="250.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">VAE encode</text>
+<text x="467.50" y="272.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">low-res latent</text>
+<rect x="600.00" y="215.00" width="190.00" height="90.00" rx="10.00" fill="#ffffff" stroke="#f59e0b" stroke-width="1.60"/>
+<text x="695.00" y="245.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="13.00" font-weight="700" text-anchor="middle">Image adapter</text>
+<text x="695.00" y="267.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">3-stage upsampler</text>
+<text x="695.00" y="282.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="middle">+ gated cross-attention</text>
+<line x1="160.00" y1="125.00" x2="205.00" y2="125.00" stroke="#64748b" stroke-width="1.50"/>
+<polygon points="205.00,125.00 197.33,129.70 197.33,120.30" fill="#64748b"/>
+<line x1="350.00" y1="125.00" x2="395.00" y2="125.00" stroke="#64748b" stroke-width="1.50"/>
+<polygon points="395.00,125.00 387.33,129.70 387.33,120.30" fill="#64748b"/>
+<line x1="540.00" y1="125.00" x2="600.00" y2="125.00" stroke="#64748b" stroke-width="1.50"/>
+<polygon points="600.00,125.00 592.33,129.70 592.33,120.30" fill="#64748b"/>
+<line x1="790.00" y1="125.00" x2="845.00" y2="125.00" stroke="#64748b" stroke-width="1.50"/>
+<polygon points="845.00,125.00 837.33,129.70 837.33,120.30" fill="#64748b"/>
+<line x1="350.00" y1="260.00" x2="395.00" y2="260.00" stroke="#64748b" stroke-width="1.50"/>
+<polygon points="395.00,260.00 387.33,264.70 387.33,255.30" fill="#64748b"/>
+<line x1="540.00" y1="260.00" x2="600.00" y2="260.00" stroke="#64748b" stroke-width="1.50"/>
+<polygon points="600.00,260.00 592.33,264.70 592.33,255.30" fill="#64748b"/>
+<line x1="695.00" y1="215.00" x2="695.00" y2="185.00" stroke="#f59e0b" stroke-width="1.50"/>
+<polygon points="695.00,185.00 699.70,192.67 690.30,192.67" fill="#f59e0b"/>
+</svg>

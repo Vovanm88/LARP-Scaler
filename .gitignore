@@ -9,3 +9,4 @@ build/
 input.*
 output*.png
 checkpoint/
+paper.zip
