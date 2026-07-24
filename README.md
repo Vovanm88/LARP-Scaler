@@ -7,6 +7,15 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Vovanm88%2FLARP--Scaler-181717?logo=github)](https://github.com/Vovanm88/LARP-Scaler)
 [![License](https://img.shields.io/badge/code%20license-Apache--2.0-blue)](LICENSE)
 
+<p align="center">
+  <img src="paper/figures/pid_lua_image_upscale_examples.png" width="100%" alt="Image-upscaling examples: native PiD at 512 to 2048 pixels and LUA-FLUX at 256 to 1024 pixels, compared with Real-ESRGAN, LARP-Scaler, and ground truth.">
+</p>
+
+The examples above use two separately valid image-upscaling protocols: native
+PiD operates at **512→2048**, while LUA-FLUX with the Flux VAE operates at
+**256→1024**. They are visual examples rather than a shared metric ranking
+across the two resolutions.
+
 LARP-Scaler is a SANA-based image upscaler that directly refines a resized
 image in a 32-channel latent space. It supports **×2, ×4, and ×8** enlargement,
 uses an independent image-guidance adapter, and includes tiled VAE and DiT
@@ -177,7 +186,7 @@ aesthetic ranking.
 ~2048 px output; run at 512 px it produces a regular lattice artifact, so it is
 excluded from the tables above and measured under its native protocol instead:
 
-### Corrected native PiD comparison (512→2048, ×4, 12 photos)
+### Native-resolution PiD comparison (512→2048, ×4, 12 photos)
 
 | Method | PSNR, dB ↑ | SSIM ↑ | MAE ↓ |
 |---|---:|---:|---:|
@@ -372,7 +381,7 @@ Until the arXiv record is available, cite the software release:
 ```bibtex
 @misc{melnikov2026larpscaler,
   title        = {LARP-Scaler: Latent Super-Resolution High-Performance Image Upscaler},
-  author       = {Vladimir Melnikov and Maxim Manushin and Ilya Kuleshov},
+  author       = {Vladimir Melnikov and Maxim Manushin and Ilia Kuleshov},
   year         = {2026},
   howpublished = {\url{https://github.com/Vovanm88/LARP-Scaler}}
 }

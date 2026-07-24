@@ -46,7 +46,7 @@ def test_benchmark_source_contains_release_claims() -> None:
     # the invalid 512px PiD run is quarantined, not shown in the headline arrays
     assert "PiD" not in photo and "PiD" not in anime
     assert data["quality_x4_512"]["excluded_pid_512px"]["photo"]["psnr_db"] == 16.7071
-    # the corrected native-2k PiD comparison is a separate protocol
+    # the native-resolution 2k PiD comparison is a separate protocol
     native = {row["method"]: row for row in data["quality_native_2k"]["photo"]}
     assert native["LARP-Scaler"]["psnr_db"] == 31.4801
     assert native["PiD (native 2k)"]["psnr_db"] == 26.1275

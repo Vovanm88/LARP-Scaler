@@ -52,7 +52,7 @@
       }
     ],
     "excluded_pid_512px": {
-      "note": "The PiD_res2k_sr4x checkpoint targets ~2048px output; its 512px results show a regular lattice artifact and are not a valid measure of the method. See quality_native_2k for the corrected run.",
+      "note": "The PiD_res2k_sr4x checkpoint targets ~2048px output; its 512px results show a regular lattice artifact and are not a valid measure of the method. See quality_native_2k for the native-resolution run.",
       "photo": {
         "method": "PiD",
         "psnr_db": 16.7071,
@@ -315,7 +315,7 @@
     ]
   },
   "quality_native_2k": {
-    "protocol": "Corrected native PiD comparison. 12 real photographs (3-7K originals); each target is a 2048px centre crop; input is its 512px Lanczos downsample; x4; same LR/HR pairs for all methods. PiD uses its native PiD_res2k_sr4x 512->2048 setting (4 steps, BF16, seed 1234). LUA omitted: Flux-VAE decode OOM at 2048px on 32GB.",
+    "protocol": "Native-resolution PiD comparison. 12 real photographs (3-7K originals); each target is a 2048px centre crop; input is its 512px Lanczos downsample; x4; same LR/HR pairs for all methods. PiD uses its native PiD_res2k_sr4x 512->2048 setting (4 steps, BF16, seed 1234). LUA omitted: Flux-VAE decode OOM at 2048px on 32GB.",
     "photo": [
       {
         "method": "LARP-Scaler",

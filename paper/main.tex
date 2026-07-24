@@ -35,7 +35,7 @@
 \title{\textbf{LARP-Scaler: Direct Latent Refinement for\\Fast Multi-Scale Image Super-Resolution}}
 
 \author{
-  Vladimir Melnikov \quad Maxim Manushin \quad Ilya Kuleshov\\[2pt]
+  Vladimir Melnikov \quad Maxim Manushin \quad Ilia Kuleshov\\[2pt]
   \small \url{https://github.com/Vovanm88/LARP-Scaler}
 }
 
@@ -43,6 +43,17 @@
 
 \begin{document}
 \maketitle
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/pid_lua_image_upscale_examples.png}
+  \caption{\textbf{Image-upscaling examples in valid operating regimes.}
+  Native PiD is evaluated at $512\!\to\!2048$, while LUA-FLUX with the Flux
+  VAE is evaluated at $256\!\to\!1024$; both rows use real images encoded by
+  the VAE, followed by latent upscaling and final decoding. The rows are
+  illustrative examples, not a cross-resolution metric comparison.}
+  \label{fig:pid_lua_image_upscale_examples}
+\end{figure*}
 
 \begin{abstract}
 Modern latent image generators provide expressive priors, but converting them
@@ -492,7 +503,7 @@ PiD is designed to synthesize high-resolution pixel detail from latent
 conditioning. We therefore exclude it from the 512-pixel headline tables: the
 available public \texttt{PiD\_res2k\_sr4x} checkpoint targets roughly
 2048-pixel outputs, and its archived 512-pixel results exhibit a regular
-lattice artifact. The corrected native-resolution experiment is reported
+lattice artifact. The native-resolution experiment is reported
 separately below.
 LUA optimizes a different point again: a single feed-forward latent adapter
 with scale-specific heads, which is inexpensive but is not trained to restore
@@ -502,7 +513,7 @@ ranking; they quantify agreement with a known target under one protocol.
 
 \begin{table}[t]
   \centering
-  \caption{Corrected native PiD $4\times$ photo reconstruction (12 real
+  \caption{Native-resolution PiD $4\times$ photo reconstruction (12 real
   images). Each ground-truth target is a 2048-pixel crop from an original
   3--7K photograph and the input is its 512-pixel Lanczos downsample.}
   \label{tab:pid_native_quality}
