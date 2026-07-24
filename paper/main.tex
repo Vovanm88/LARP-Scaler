@@ -493,6 +493,13 @@ one headline metric.
 PiD is designed to synthesize high-resolution pixel detail from latent
 conditioning. Such plausible details can be useful perceptually but are
 strongly penalized when they do not match the reference pixel arrangement.
+Its numbers here carry an additional and important caveat: the public
+checkpoint we ran is \texttt{PiD\_res2k\_sr4x}, which targets roughly
+2048-pixel outputs, whereas this protocol asks for a 512-pixel output. The
+resulting images show regular lattice structure rather than merely different
+texture, so these values characterize that checkpoint outside its intended
+resolution regime and should not be read as the method's achievable quality.
+A comparison at PiD's native output scale is left to future work.
 LUA optimizes a different point again: a single feed-forward latent adapter
 with scale-specific heads, which is inexpensive but is not trained to restore
 the exact reference pixels of this protocol. The reported reconstruction gaps

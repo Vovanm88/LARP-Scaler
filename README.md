@@ -175,6 +175,12 @@ perceptual pixel-diffusion decoder and LUA is a single-pass feed-forward latent
 adapter; both optimize objectives other than exact reference reconstruction, so
 their values here should not be read as an aesthetic ranking.
 
+> **Caveat on the PiD row.** The public checkpoint used here,
+> `PiD_res2k_sr4x`, targets ~2048 px outputs, while this protocol produces
+> 512 px. Its outputs show regular lattice structure rather than merely
+> different texture, so this row reflects that checkpoint outside its intended
+> resolution regime and is not a fair estimate of the method.
+
 <p align="center">
   <img src="paper/figures/quality_comparison.svg" width="92%" alt="PSNR and SSIM comparisons for the photo and anime reconstruction sets.">
 </p>
