@@ -14,7 +14,7 @@ reproducible figures.
 - `scripts/make_figures.py` — deterministic SVG/PDF figure generator;
 - `scripts/make_qualitative.py` — real-image qualitative montage builder;
 - `figures/` — generated vector figures;
-- `qualitative/` — expected layout for release-time qualitative inputs.
+- `qualitative/` — real per-case benchmark outputs and the montage manifest.
 
 ## Regenerate figures
 
@@ -44,7 +44,6 @@ selected SFT checkpoint, not the full upstream training lineage.
 
 ## Release TODO
 
-- add real qualitative comparisons using `qualitative/README.md`;
 - add LPIPS, DISTS, no-reference IQA, and/or human-preference evaluation;
 - add Gradio, arXiv, and Hugging Face Paper Page URLs;
 - review dataset and upstream-model attributions and licenses;

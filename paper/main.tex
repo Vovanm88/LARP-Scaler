@@ -122,8 +122,8 @@ Our contributions are:
 \end{itemize}
 
 The present work is deliberately scoped as a technical preprint. Before
-archival submission we will add the real qualitative benchmark montage, public
-Gradio URL, and arXiv identifier.
+archival submission we will add perceptual and human-preference evaluation,
+the public Gradio URL, and the arXiv identifier.
 
 \section{Related Work}
 \label{sec:related}
@@ -341,8 +341,8 @@ defects.
 \subsection{Sources and native-resolution profiling}
 
 The final metadata index contains 288,423 records from CommonCatalog, PD12M,
-4KLSDB, Unsplash, DIV8K, fine-t2i, WikiArt-derived art subsets, and three
-high-resolution SFW anime sources. Images remain in their source locations; the
+4KLSDB, Unsplash, DIV8K, a small curated and synthetic fine-t2i set, and three
+high-resolution SFW anime sources (yande, konachan, and danbooru). Images remain in their source locations; the
 dataset stores absolute paths and metadata rather than duplicating hundreds of
 gigabytes.
 
@@ -520,7 +520,7 @@ ranking; they quantify agreement with a known target under one protocol.
     \toprule
     Method & $2\times$ & $4\times$ & $8\times$\\
     \midrule
-    \method & 0.8119 & 0.8227 & 0.8047\\
+    \method & \textbf{0.8119} & 0.8227 & 0.8047\\
     LUA & 2.6323 & \textbf{0.6291} & 0.6668\\
     PiD & 0.9069 & 0.9050 & 0.8397\\
     Real-ESRGAN & 1.0253 & 0.6681 & \textbf{0.6134}\\
@@ -669,8 +669,7 @@ SFT checkpoint at update 6,000. Consequently, 13.6 hours is final-stage wall
 time rather than total end-to-end pretraining compute. The predecessor run is
 identified in the machine-readable provenance, but its earlier initialization
 contains restarted counters and is not summarized as a single total-compute
-claim. The public demo URL, qualitative benchmark images, and arXiv identifier
-also remain pending.
+claim. The public demo URL and the arXiv identifier also remain pending.
 
 \section{Conclusion}
 
@@ -684,8 +683,8 @@ a roughly 0.5 dB contribution from image guidance. The accompanying data
 pipeline illustrates that native-resolution quality control and
 domain-aware filtering are as important as the network design for extreme
 super-resolution. The next evaluation priority is a larger public benchmark
-with perceptual metrics, human preference, and release-quality qualitative
-comparisons.
+with perceptual metrics and human preference, since the present evidence is
+restricted to reference reconstruction on small controlled sets.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}

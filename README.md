@@ -34,7 +34,7 @@ inference for images that do not fit in a single forward pass.
   automatic tile batching, and CUDA OOM backoff.
 - **Controlled reconstruction results.** On the 12-photo ×4 benchmark described
   below, LARP-Scaler reaches **31.817 dB PSNR**, compared with 29.641 dB for
-  Real-ESRGAN and 16.707 dB for PiD.
+  Real-ESRGAN, 19.554 dB for LUA, and 16.707 dB for PiD.
 
 ## Links
 
@@ -179,6 +179,18 @@ their values here should not be read as an aesthetic ranking.
   <img src="paper/figures/quality_comparison.svg" width="92%" alt="PSNR and SSIM comparisons for the photo and anime reconstruction sets.">
 </p>
 
+### Qualitative comparison
+
+Outputs regenerated with the released BF16 checkpoint under the same protocol.
+The four cases are not hand-picked: the twelve photographs were ranked by
+per-image PSNR difference against Real-ESRGAN and four evenly spaced ranks were
+taken, so the panel spans the observed range. The first row is the case where
+LARP-Scaler is **worse** than Real-ESRGAN (−0.70 dB).
+
+<p align="center">
+  <img src="paper/figures/qualitative_comparison.svg" width="100%" alt="Qualitative comparison: LR input, Real-ESRGAN, PiD, LARP-Scaler and ground truth on four photographs.">
+</p>
+
 ## End-to-end latency
 
 Latency was measured on an NVIDIA GeForce RTX 5090 with models already in VRAM.
@@ -193,7 +205,7 @@ processing rather than GPU-only kernel time.
 
 | Method | ×2 median, s ↓ | ×4 median, s ↓ | ×8 median, s ↓ |
 |---|---:|---:|---:|
-| LARP-Scaler | 0.8119 | 0.8227 | 0.8047 |
+| LARP-Scaler | **0.8119** | 0.8227 | 0.8047 |
 | LUA-Flux | 2.6323 | **0.6291** | 0.6668 |
 | PiD-Flux | 0.9069 | 0.9050 | 0.8397 |
 | Real-ESRGAN ×4 | 1.0253 | 0.6681 | **0.6134** |
@@ -300,9 +312,13 @@ python paper/scripts/make_figures.py
 ```
 
 This writes matching SVG files for GitHub and PDF files for LaTeX. The
-qualitative montage is intentionally absent until real LR, baseline,
-LARP-Scaler, and ground-truth images are added. Its manifest format is
-documented in [`paper/qualitative/README.md`](paper/qualitative/README.md).
+qualitative montage is built separately from real benchmark outputs stored in
+[`paper/qualitative/`](paper/qualitative/):
+
+```bash
+python paper/scripts/make_qualitative.py paper/qualitative/manifest.json \
+  --output paper/figures/qualitative_comparison.pdf
+```
 
 ## Limitations
 
@@ -322,7 +338,7 @@ documented in [`paper/qualitative/README.md`](paper/qualitative/README.md).
   training, ablations, and evaluation used one four-GPU RTX 5090 machine,
   limiting broad hyperparameter sweeps, multi-seed training, and larger-scale
   evaluation.
-- The public paper draft still requires qualitative examples and release URLs.
+- The public paper draft still requires perceptual metrics and release URLs.
 
 ## Citation
 
