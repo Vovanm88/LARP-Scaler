@@ -7,12 +7,29 @@
 [![GitHub](https://img.shields.io/badge/GitHub-Vovanm88%2FLARP--Scaler-181717?logo=github)](https://github.com/Vovanm88/LARP-Scaler)
 [![License](https://img.shields.io/badge/code%20license-Apache--2.0-blue)](LICENSE)
 
+> The lightweight `main` branch contains the runtime, examples, and notebooks.
+> The complete preprint, benchmark records, publication scripts, and full-resolution
+> qualitative assets are preserved in the
+> [`paper-full` branch](https://github.com/Vovanm88/LARP-Scaler/tree/paper-full).
+
+## Checkpoints
+
+| Variant | Intended use | Status |
+|---|---|---|
+| **LARP-Scaler v2 BF16** | Current multi-scale ×2/×4/×8 release | [Available on Hugging Face](https://huggingface.co/VladimirM388/larpscaler-v2-bf16) |
+| **LARP-Scaler FP8** | Lower-memory quantized inference | **To be released** |
+| **LARP-Scaler NF4** | 4-bit lower-memory inference | **To be released** |
+| **LARP-Scaler native 2048×2048** | Resolution-specialized 2K checkpoint | **To be released** |
+
+Performance and memory figures for the planned variants will be published with
+their weights; the benchmark results below describe the released BF16 model.
+
 <p align="center">
-  <img src="paper/figures/larp_before_after_hero.png" width="100%" alt="LARP-Scaler before and after: a 512 by 512 real photo input and a LARP-Scaler 4x 2048 by 2048 output.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/larp_before_after_hero.png" width="100%" alt="LARP-Scaler before and after: a 512 by 512 real photo input and a LARP-Scaler 4x 2048 by 2048 output.">
 </p>
 
 <p align="center">
-  <img src="paper/figures/larp_pid_lua_image_upscale_examples.png" width="100%" alt="Image-upscaling examples: native PiD at 512 to 2048 pixels and LUA-FLUX at 256 to 1024 pixels, compared with Real-ESRGAN, LARP-Scaler, and ground truth.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/larp_pid_lua_image_upscale_examples.png" width="100%" alt="Image-upscaling examples: native PiD at 512 to 2048 pixels and LUA-FLUX at 256 to 1024 pixels, compared with Real-ESRGAN, LARP-Scaler, and ground truth.">
 </p>
 
 The multi-method comparison above uses two separately valid image-upscaling protocols: native
@@ -25,12 +42,13 @@ image in a 32-channel latent space. It supports **×2, ×4, and ×8** enlargemen
 uses an independent image-guidance adapter, and includes tiled VAE and DiT
 inference for images that do not fit in a single forward pass.
 
-> **Release TODO:** add the public Gradio URL and the arXiv/Paper Page link.
-> The future repository PDF will live at `paper/LARP-Scaler.pdf`; it is
-> intentionally not included in this draft release.
+> **Release status:** the public Gradio demo is available; the arXiv/Paper Page
+> link remains pending.
+> The current draft PDF and its sources live in the
+> [`paper-full` branch](https://github.com/Vovanm88/LARP-Scaler/blob/paper-full/larpscaler.pdf).
 
 <p align="center">
-  <img src="paper/figures/architecture.svg" width="100%" alt="LARP-Scaler architecture: a resized image is refined by a SANA DiT while an independent image is encoded by a guidance adapter.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/architecture.svg" width="100%" alt="LARP-Scaler architecture: a resized image is refined by a SANA DiT while an independent image is encoded by a guidance adapter.">
 </p>
 
 ## Highlights
@@ -47,7 +65,8 @@ inference for images that do not fit in a single forward pass.
   automatic tile batching, and CUDA OOM backoff.
 - **Controlled reconstruction results.** On the 12-photo ×4 benchmark described
   below, LARP-Scaler reaches **31.817 dB PSNR**, compared with 29.641 dB for
-  Real-ESRGAN and 19.554 dB for LUA.
+  Real-ESRGAN and 19.554 dB for LUA. Protocol-matched Lanczos reaches 33.434
+  dB, illustrating the expected distortion–generation trade-off.
 
 ## Links
 
@@ -57,7 +76,7 @@ inference for images that do not fit in a single forward pass.
 | Colab notebook | [Open `larpscaler_inference.ipynb`](https://colab.research.google.com/github/Vovanm88/LARP-Scaler/blob/main/notebooks/larpscaler_inference.ipynb) |
 | Source code | [Vovanm88/LARP-Scaler](https://github.com/Vovanm88/LARP-Scaler) |
 | Gradio demo | [Open the LARP-Scaler Space](https://huggingface.co/spaces/Anonumous/LARP-Scaler) |
-| Paper | **TODO:** add the arXiv and Hugging Face Paper Page URLs |
+| Paper | arXiv and Hugging Face Paper Page pending |
 
 ## Installation
 
@@ -78,9 +97,11 @@ pip install -e ".[dev,notebook]"
 
 ## Python API
 
-### Quality preset
+### Legacy multi-step preset
 
-This is the expressive four-step preset used by the example notebook.
+The runtime supports the original expressive four-step configuration shown in
+the example notebook. It is not the recommended paired-reconstruction setting:
+additional steps were worse in internal checks for the released checkpoint.
 
 ```python
 from larpscaler import LarpScaler
@@ -100,10 +121,10 @@ image = upscaler.upscale(
 image.save("output.png")
 ```
 
-### Fast reconstruction preset
+### Evaluated reconstruction preset
 
-For lower latency and strong pixel reconstruction on the measured photo
-protocol, use one refinement step:
+For the fidelity-oriented setting measured in the paper, use one refinement
+step:
 
 ```python
 image = upscaler.upscale(
@@ -168,7 +189,9 @@ are better; lower MAE is better.
 
 | Method | PSNR, dB ↑ | SSIM ↑ | MAE ↓ |
 |---|---:|---:|---:|
-| **LARP-Scaler** | **31.8170** | **0.7877** | **0.02314** |
+| **Lanczos** | **33.4340** | **0.8308** | **0.01910** |
+| Bicubic | 33.2358 | 0.8248 | 0.01943 |
+| LARP-Scaler | 31.8170 | 0.7877 | 0.02314 |
 | Real-ESRGAN ×4 | 29.6409 | 0.7587 | 0.02846 |
 | LUA-Flux ×4 | 19.5536 | 0.4071 | 0.09247 |
 
@@ -176,15 +199,17 @@ are better; lower MAE is better.
 
 | Method | PSNR, dB ↑ | SSIM ↑ | MAE ↓ |
 |---|---:|---:|---:|
-| **LARP-Scaler** | **28.4394** | 0.8560 | **0.02382** |
+| **Lanczos** | **28.7939** | 0.8650 | **0.02184** |
+| Bicubic | 28.3830 | 0.8614 | 0.02190 |
+| LARP-Scaler | 28.4394 | 0.8560 | 0.02382 |
 | Real-ESRGAN ×4 | 26.7850 | **0.8695** | 0.02559 |
 | LUA-Flux ×4 | 17.2268 | 0.3653 | 0.10970 |
 
-LARP-Scaler has the highest PSNR and lowest MAE in both controlled sets.
-Real-ESRGAN has slightly higher SSIM on anime (0.8695 versus 0.8560). LUA is a
-single-pass feed-forward latent adapter and optimizes an objective other than
-exact reference reconstruction, so its values here should not be read as an
-aesthetic ranking.
+LARP-Scaler has the highest PSNR and lowest MAE among the tested learned
+methods. Protocol-matched interpolation is stronger on paired distortion
+metrics because the inputs are Lanczos downscales and interpolation does not
+synthesize new texture. Real-ESRGAN has the highest anime SSIM. These values
+should not be read as an aesthetic ranking.
 
 **PiD is reported separately.** The public `PiD_res2k_sr4x` checkpoint targets
 ~2048 px output; run at 512 px it produces a regular lattice artifact, so it is
@@ -203,7 +228,7 @@ At its native output scale PiD is artifact-free and valid; it still trails
 LARP-Scaler and Real-ESRGAN on this strict paired metric.
 
 <p align="center">
-  <img src="paper/figures/quality_comparison.svg" width="92%" alt="PSNR and SSIM comparisons for the photo and anime reconstruction sets.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/quality_comparison.svg" width="92%" alt="PSNR and SSIM comparisons for the photo and anime reconstruction sets.">
 </p>
 
 ### Perceptual metrics (LPIPS / DISTS, lower is better)
@@ -221,14 +246,14 @@ learned perceptual distances.
 
 ### Qualitative comparison
 
-Outputs regenerated with the released BF16 checkpoint under the same protocol.
-The four cases are not hand-picked: the twelve photographs were ranked by
-per-image PSNR difference against Real-ESRGAN and four evenly spaced ranks were
-taken, so the panel spans the observed range. The first row is the case where
-LARP-Scaler is **worse** than Real-ESRGAN (−0.70 dB).
+Native-resolution outputs from the 12-photo protocol above. Every method sees
+the same 512×512 LR input and produces a 2048×2048 output. PiD uses its official
+`PiD_res2k_sr4x` four-step regime; it is not forced to generate an unsupported
+512 px output. The four illustrative scenes cover different structures and
+textures, while aggregate claims use all 12 images.
 
 <p align="center">
-  <img src="paper/figures/qualitative_comparison.svg" width="100%" alt="Qualitative comparison: LR input, Real-ESRGAN, PiD, LARP-Scaler and ground truth on four photographs.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/qualitative_comparison.svg" width="100%" alt="Native 512-to-2048 qualitative comparison: LR input, Real-ESRGAN, PiD, LARP-Scaler and ground truth on four photographs.">
 </p>
 
 ## End-to-end latency
@@ -253,7 +278,7 @@ At ×4, LARP-Scaler is slower than LUA and Real-ESRGAN. The comparison therefore
 of being universally fastest.
 
 <p align="center">
-  <img src="paper/figures/latency_1024.svg" width="88%" alt="Median end-to-end latency at x2, x4 and x8 for LARP-Scaler, LUA, PiD and Real-ESRGAN.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/latency_1024.svg" width="88%" alt="Median end-to-end latency at x2, x4 and x8 for LARP-Scaler, LUA, PiD and Real-ESRGAN.">
 </p>
 
 ## Prompt and image-adapter ablation
@@ -277,32 +302,48 @@ positive change. These effects should not be added across different benchmark
 protocols.
 
 <p align="center">
-  <img src="paper/figures/prompt_adapter_ablation.svg" width="78%" alt="Prompt and image-adapter PSNR interaction.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/prompt_adapter_ablation.svg" width="78%" alt="Prompt and image-adapter PSNR interaction.">
 </p>
 
 ## Training corpus
 
 The training metadata contains **288,423** captioned records from photographic,
 art, and anime sources. Images were profiled at native resolution, embedded
-with DINOv2-large, scored by two VLM-distilled quality students, filtered with
+with DINOv2-large, scored by two VLM-distilled student quality models, filtered with
 content-aware deterministic gates, and captioned from source metadata or a
-local VLM. A 2,500-image defect-labelled bad pool was retained as
+local VLM. A 2,500-image defect-labelled subset was retained as
 quality-conditioned negative data.
 
 <p align="center">
-  <img src="paper/figures/data_pipeline.svg" width="100%" alt="Six-stage LARP-Scaler data-curation pipeline.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/data_pipeline.svg" width="100%" alt="Six-stage LARP-Scaler data-curation pipeline.">
 </p>
 
 More detail and the exact source counts are included in the paper draft.
 
 ## Training recipe
 
-The released checkpoint was initialized from
-`supups-upscaler-v1-sft/checkpoint-6000` and then trained for **4,000**
-direct-refinement updates. This final stage used 1024px crops, BF16,
-DeepSpeed ZeRO-2, AdamW (`lr=2e-5`, weight decay `0.01`), and an effective
-batch size of **96**: three RTX 5090 training processes × batch 2 × 16 gradient
-accumulation steps. The fourth RTX 5090 produced the online VAE cache.
+LARP-Scaler was trained as a curriculum rather than converted from SANA in one
+step:
+
+1. **Domain and schedule adaptation.** Full-parameter CPT/SFT first moved SANA
+   toward the curated training-image distribution and the target Z-Image flow
+   schedule. No image adapter was present yet.
+2. **Adapter warm-up.** A zero-initialized guidance branch was attached and
+   trained jointly with the complete backbone. Half of the samples replaced
+   the clean-side latent with a target-sized degraded latent while retaining
+   the conventional noise-flow target.
+3. **Adapter SFT.** Training continued on a stricter quality-filtered subset
+   without the bad pool. `supups-upscaler-v1-sft/checkpoint-6000` was selected
+   for the final transition.
+4. **Direct refinement.** The path itself changed to 100% degraded-to-clean
+   latent refinement and training continued for **4,000** updates with RGB and
+   high-frequency reconstruction terms.
+
+The adapter was never trained as an isolated plug-in: its 256-channel encoder,
+scale-dependent ×2/×4/×8 upsamplers, ten image cross-attention insertions, and
+the full SANA backbone were updated jointly. Zero-initialized gates made the
+new branch a no-op when first attached and allowed its contribution to grow
+gradually.
 
 The logged objective was:
 
@@ -310,18 +351,32 @@ The logged objective was:
 loss = flow_loss + 0.3 × reconstruction_loss + 0.5 × high_frequency_loss
 ```
 
+In the final stage, `flow_loss` is MSE on the velocity from the clean latent
+toward the interpolated degraded latent. The predicted clean latent is decoded
+at 512px through a frozen AutoencoderDC decoder; `reconstruction_loss` is RGB
+L1 and `high_frequency_loss` is L1 between normalized 3×3 Laplacian responses.
+Gradients pass through the decoder to the transformer and adapter, but the
+decoder weights remain frozen.
+
+This final stage used 1024px crops, BF16, DeepSpeed ZeRO-2, AdamW
+(`lr=2e-5`, weight decay `0.01`), static loss scale 64, and an effective batch
+size of **96**. VAE and text encoders remained frozen, and only the
+transformer--adapter module received optimizer updates. Worker allocation,
+cache production, seeds, and stage-boundary state are retained in the
+machine-readable training record rather than duplicated here.
+
 The final stage took **13 h 36 min 46 s**. Trackio validation loss decreased
 from 0.1954 at update 100 to 0.1452 at update 4,000. This duration is not a
 claim about total SANA pretraining or the complete predecessor-checkpoint
 history.
 
 <p align="center">
-  <img src="paper/figures/training_curve.svg" width="80%" alt="Training and validation loss milestones across the final 4,000-update direct-refinement stage.">
+  <img src="https://raw.githubusercontent.com/Vovanm88/LARP-Scaler/paper-full/paper/figures/training_curve.svg" width="80%" alt="Training and validation loss milestones across the final 4,000-update direct-refinement stage.">
 </p>
 
 The exact recovered config, run IDs, checkpoint hash, loss components, and
 milestones are stored in
-[`paper/data/training_run.json`](paper/data/training_run.json).
+[`paper/data/training_run.json`](https://github.com/Vovanm88/LARP-Scaler/blob/paper-full/paper/data/training_run.json).
 
 ## Large-image inference
 
@@ -340,18 +395,21 @@ weights use FP32; model passes use the checkpoint dtype.
 
 ## Reproducing the figures
 
-Benchmark numbers are stored in
-[`paper/data/benchmarks.json`](paper/data/benchmarks.json); final-stage
-training provenance and milestones are in
-[`paper/data/training_run.json`](paper/data/training_run.json).
+Publication assets are intentionally kept out of the lightweight branch.
+Check out `paper-full` before running the commands below. Benchmark numbers are
+stored in
+[`paper/data/benchmarks.json`](https://github.com/Vovanm88/LARP-Scaler/blob/paper-full/paper/data/benchmarks.json);
+final-stage training provenance and milestones are in
+[`paper/data/training_run.json`](https://github.com/Vovanm88/LARP-Scaler/blob/paper-full/paper/data/training_run.json).
 
 ```bash
+git switch paper-full
 python paper/scripts/make_figures.py
 ```
 
 This writes matching SVG files for GitHub and PDF files for LaTeX. The
 qualitative montage is built separately from real benchmark outputs stored in
-[`paper/qualitative/`](paper/qualitative/):
+[`paper/qualitative/`](https://github.com/Vovanm88/LARP-Scaler/tree/paper-full/paper/qualitative):
 
 ```bash
 python paper/scripts/make_qualitative.py paper/qualitative/manifest.json \
@@ -361,10 +419,12 @@ python paper/scripts/make_qualitative.py paper/qualitative/manifest.json \
 ## Limitations
 
 - The direct quality comparisons contain 12 photo and 12 anime images. They are
-  useful controlled tests, but not a broad public benchmark.
+  useful controlled tests, but not a broad public benchmark. A separate
+  48-photo matrix covers ×2, ×4, and ×8.
 - PSNR, SSIM, and MAE reward exact reconstruction. They do not fully measure
   perceptual preference and can penalize plausible generated details.
-- LPIPS, DISTS, FID, and human-preference results are not yet available.
+- LPIPS and DISTS are reported; no-reference IQA, FID, and human preference are
+  not yet available.
 - Reported speed measurements use one GPU family: NVIDIA GeForce RTX 5090.
 - LUA multi-scale matrices at ×2 and ×8, and its synthetic and mixed-aspect
   sets, are kept out of the shared ×4 tables; only the ×4 run on the identical
@@ -376,7 +436,7 @@ python paper/scripts/make_qualitative.py paper/qualitative/manifest.json \
   training, ablations, and evaluation used one four-GPU RTX 5090 machine,
   limiting broad hyperparameter sweeps, multi-seed training, and larger-scale
   evaluation.
-- The public paper draft still requires perceptual metrics and release URLs.
+- The arXiv and Hugging Face Paper Page URLs remain pending.
 
 ## Citation
 
@@ -391,9 +451,9 @@ Until the arXiv record is available, cite the software release:
 }
 ```
 
-**TODO after release:** replace this entry with the arXiv citation and add the
-arXiv URL to this README so Hugging Face can associate the model and demo with
-the corresponding Paper Page.
+**Publication note:** replace this entry with the arXiv citation and add the
+arXiv URL to this README once available so Hugging Face can associate the model
+and demo with the corresponding Paper Page.
 
 ## License
 
