@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "scope": "Final direct-refinement stage of the released checkpoint; this is not the model's complete pretraining history.",
+  "scope": "Curriculum summary plus exact logs for the final direct-refinement stage; aggregate wall time for the complete pretraining history is not claimed.",
   "provenance": {
     "config": "supups_upscaler_v2_direct_refine.yaml",
     "trackio_project": "sana-supups-upscaler-v2-direct-refine",
@@ -14,6 +14,59 @@
       "trackio_run_name": "dainty-sunset-0",
       "available_steps": 10000,
       "selected_step": 6000
+    }
+  },
+  "curriculum": {
+    "scope_note": "The domain-adaptation curriculum is documented from the surviving training configs and author record. The adapter-SFT-to-release chain is additionally linked by checkpoint paths; the final exported transformer is verified by SHA-256.",
+    "stages": [
+      {
+        "name": "domain_and_schedule_adaptation",
+        "adapter_present": false,
+        "trainable_parameters": "all SANA DiT parameters",
+        "data_policy": "broad CPT on the curated corpus followed by stricter, more caption-aligned SFT",
+        "objective": "standard clean-to-noise flow matching under the Z-Image schedule",
+        "purpose": "shift the SANA prior toward the target image distribution and flow schedule"
+      },
+      {
+        "name": "adapter_warmup_v1_cpt",
+        "adapter_present": true,
+        "trainable_parameters": "full SANA backbone and complete image-guidance adapter",
+        "degraded_input_probability": 0.5,
+        "objective": "mixed clean/degraded source with the conventional clean-to-noise flow target",
+        "initialization": "zero-initialized residual gates and first-block feed-forward injection"
+      },
+      {
+        "name": "adapter_v1_sft",
+        "resume_from": "supups-upscaler-v1/milestone-10000",
+        "selected_checkpoint": "supups-upscaler-v1-sft/checkpoint-6000",
+        "degraded_input_probability": 0.5,
+        "minimum_quality_score": 0.8,
+        "include_bad_pool": false,
+        "objective": "same mixed adapter objective on a stricter data subset"
+      },
+      {
+        "name": "direct_refinement",
+        "resume_from": "supups-upscaler-v1-sft/checkpoint-6000",
+        "updates": 4000,
+        "degraded_input_probability": 1.0,
+        "objective": "direct degraded-to-clean latent flow plus RGB L1 and Laplacian L1",
+        "released_checkpoint": "milestone-4000"
+      }
+    ],
+    "adapter": {
+      "guidance_channels": 256,
+      "upsample_stages": 3,
+      "transformer_blocks": 20,
+      "guidance_attention_every": 2,
+      "guidance_attention_blocks": 10,
+      "optimization": "joint with all transformer parameters"
+    },
+    "stage_boundary_state": {
+      "checkpoint_contents": "BF16 transformer and scheduler weights",
+      "optimizer_state_restored": false,
+      "scheduler_history_restored": false,
+      "rng_and_data_order_restored": false,
+      "resume_global_step": false
     }
   },
   "configuration": {
@@ -37,6 +90,7 @@
     "plateau_factor": 0.8,
     "plateau_patience": 4,
     "max_grad_norm": 2.0,
+    "static_loss_scale": 64.0,
     "seed": 6769,
     "objective": {
       "name": "flow",

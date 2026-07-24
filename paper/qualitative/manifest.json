@@ -2,7 +2,7 @@
   "columns": [
     {
       "key": "input",
-      "label": "LR input (128 px)"
+      "label": "LR input (512 px)"
     },
     {
       "key": "real_esrgan",
@@ -10,7 +10,7 @@
     },
     {
       "key": "pid",
-      "label": "PiD (out of regime)"
+      "label": "PiD (native 2K)"
     },
     {
       "key": "larp_scaler",
@@ -21,9 +21,17 @@
       "label": "Ground truth"
     }
   ],
+  "protocol": {
+    "scale": 4,
+    "input_size": "512x512",
+    "output_size": "2048x2048",
+    "pid_checkpoint": "PiD_res2k_sr4x_official_flux_distill_4step",
+    "pid_steps": 4
+  },
   "cases": [
     {
       "label": "Photo 01",
+      "source_id": "00_000ffd84-5baa-410f-bcd4-f573b3ef1e90",
       "images": {
         "input": "photo-01/input.png",
         "real_esrgan": "photo-01/real-esrgan.png",
@@ -34,6 +42,7 @@
     },
     {
       "label": "Photo 02",
+      "source_id": "04_037e70af-62b9-4bd8-9d24-25133b5d5239",
       "images": {
         "input": "photo-02/input.png",
         "real_esrgan": "photo-02/real-esrgan.png",
@@ -44,6 +53,7 @@
     },
     {
       "label": "Photo 03",
+      "source_id": "02_001cc747-cbf3-48ee-be38-b20bbdaf9e98",
       "images": {
         "input": "photo-03/input.png",
         "real_esrgan": "photo-03/real-esrgan.png",
@@ -54,6 +64,7 @@
     },
     {
       "label": "Photo 04",
+      "source_id": "10_050ae8db-c0b7-486d-9fe5-d3ec06437a63",
       "images": {
         "input": "photo-04/input.png",
         "real_esrgan": "photo-04/real-esrgan.png",

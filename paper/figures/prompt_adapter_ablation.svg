@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 900 480">
 <title id="title">Prompt and image-adapter ablation</title>
-<desc id="desc">Prompt changes provide small gains while the correct image adapter contributes roughly half a decibel.</desc>
+<desc id="desc">Prompt changes provide small gains while matched guidance enters through the trained adapter branch.</desc>
 <rect width="900" height="480" fill="#ffffff"/>
 <text x="450.00" y="30.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="17.00" font-weight="700" text-anchor="middle">Prompt × image-adapter interaction on 12 photographs</text>
-<text x="75.00" y="66.00" fill="#2563eb" font-family="Arial, Helvetica, sans-serif" font-size="12.00" font-weight="700" text-anchor="start">Tagged-prompt adapter gain: +0.514 dB</text>
+<text x="75.00" y="66.00" fill="#2563eb" font-family="Arial, Helvetica, sans-serif" font-size="12.00" font-weight="700" text-anchor="start">Branch-on gain with matched guidance: +0.514 dB</text>
 <line x1="100.00" y1="370.00" x2="800.00" y2="370.00" stroke="#e2e8f0" stroke-width="1.00"/>
 <text x="92.00" y="374.00" fill="#475569" font-family="Arial, Helvetica, sans-serif" font-size="9.00" font-weight="400" text-anchor="end">31.2</text>
 <line x1="100.00" y1="292.86" x2="800.00" y2="292.86" stroke="#e2e8f0" stroke-width="1.00"/>
@@ -34,5 +34,5 @@
 <circle cx="275.00" cy="445.00" r="5.00" fill="#64748b" stroke="#ffffff"/>
 <text x="288.00" y="449.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="start">Adapter off</text>
 <rect x="505.00" y="440.00" width="10.00" height="10.00" rx="0.00" fill="#2563eb" stroke="#2563eb" stroke-width="1.00"/>
-<text x="522.00" y="449.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="start">Correct image</text>
+<text x="522.00" y="449.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="start">Matched guidance</text>
 </svg>

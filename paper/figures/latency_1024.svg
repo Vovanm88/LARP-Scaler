@@ -40,7 +40,7 @@
 <rect x="869.00" y="333.55" width="48.00" height="66.45" rx="0.00" fill="#f59e0b" stroke="#f59e0b" stroke-width="1.00"/>
 <text x="893.00" y="326.55" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="8.00" font-weight="400" text-anchor="middle">0.61</text>
 <text x="840.00" y="427.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="12.00" font-weight="700" text-anchor="middle">×8</text>
-<text x="28.00" y="240.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="11.00" font-weight="700" text-anchor="start">Median latency (s) ↓</text>
+<text x="28.00" y="237.50" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="11.00" font-weight="700" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90.00 28.00 237.50)">Median latency (s)</text>
 <rect x="230.00" y="452.00" width="15.00" height="15.00" rx="0.00" fill="#2563eb" stroke="#2563eb" stroke-width="1.00"/>
 <text x="252.00" y="464.00" fill="#0f172a" font-family="Arial, Helvetica, sans-serif" font-size="10.00" font-weight="400" text-anchor="start">LARP-Scaler</text>
 <rect x="420.00" y="452.00" width="15.00" height="15.00" rx="0.00" fill="#10b981" stroke="#10b981" stroke-width="1.00"/>

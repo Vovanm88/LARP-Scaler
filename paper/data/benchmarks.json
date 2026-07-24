@@ -10,8 +10,21 @@
     "latency_unit": "seconds"
   },
   "quality_x4_512": {
-    "protocol": "Reference reconstruction from 128 px inputs to 512 px targets. Each domain contains 12 images.",
+    "protocol": "Reference reconstruction from 128 px inputs to 512 px targets. Each domain contains 12 images. Low-resolution inputs are Lanczos downscales; Bicubic and Lanczos are deterministic interpolation baselines evaluated with the same RGB full-frame metrics.",
+    "uncertainty_source": "revision/revision_benchmarks.json",
     "photo": [
+      {
+        "method": "Lanczos",
+        "psnr_db": 33.4340,
+        "ssim": 0.8308,
+        "mae": 0.01910
+      },
+      {
+        "method": "Bicubic",
+        "psnr_db": 33.2358,
+        "ssim": 0.8248,
+        "mae": 0.01943
+      },
       {
         "method": "LARP-Scaler",
         "psnr_db": 31.817,
@@ -32,6 +45,18 @@
       }
     ],
     "anime": [
+      {
+        "method": "Lanczos",
+        "psnr_db": 28.7939,
+        "ssim": 0.8650,
+        "mae": 0.02184
+      },
+      {
+        "method": "Bicubic",
+        "psnr_db": 28.3830,
+        "ssim": 0.8614,
+        "mae": 0.02190
+      },
       {
         "method": "LARP-Scaler",
         "psnr_db": 28.4394,
@@ -66,6 +91,75 @@
         "mae": 0.12221
       }
     }
+  },
+  "quality_multiscale_48_photo": {
+    "protocol": "Separate 48-photo reference-reconstruction matrix. Each target is a 2048 px center crop from an external 3-7K photograph. Inputs are Lanczos downscales at x2, x4, and x8. LARP-Scaler uses one step, sigma 0.35, guidance 1, BF16, and seed 1234. This matrix is not pooled with the 12-image headline sets.",
+    "uncertainty_source": "revision/revision_benchmarks.json",
+    "rows": [
+      {
+        "method": "Lanczos",
+        "scale": 2,
+        "psnr_db": 36.6473,
+        "ssim": 0.9120,
+        "mae": 0.01287
+      },
+      {
+        "method": "Bicubic",
+        "scale": 2,
+        "psnr_db": 36.1985,
+        "ssim": 0.9059,
+        "mae": 0.01336
+      },
+      {
+        "method": "LARP-Scaler",
+        "scale": 2,
+        "psnr_db": 30.2797,
+        "ssim": 0.7641,
+        "mae": 0.02451
+      },
+      {
+        "method": "Lanczos",
+        "scale": 4,
+        "psnr_db": 32.0484,
+        "ssim": 0.8221,
+        "mae": 0.01973
+      },
+      {
+        "method": "Bicubic",
+        "scale": 4,
+        "psnr_db": 31.8412,
+        "ssim": 0.8168,
+        "mae": 0.02000
+      },
+      {
+        "method": "LARP-Scaler",
+        "scale": 4,
+        "psnr_db": 30.7892,
+        "ssim": 0.7875,
+        "mae": 0.02272
+      },
+      {
+        "method": "Lanczos",
+        "scale": 8,
+        "psnr_db": 29.2018,
+        "ssim": 0.7348,
+        "mae": 0.02532
+      },
+      {
+        "method": "LARP-Scaler",
+        "scale": 8,
+        "psnr_db": 29.1155,
+        "ssim": 0.7336,
+        "mae": 0.02589
+      },
+      {
+        "method": "Bicubic",
+        "scale": 8,
+        "psnr_db": 29.0510,
+        "ssim": 0.7303,
+        "mae": 0.02556
+      }
+    ]
   },
   "latency_1024_24_photos": {
     "protocol": "End-to-end file-processing latency on 24 real photographs. Three warm-ups and ten timed calls per image, method, and scale; 240 timed calls per cell. Model loading and output-file writing are excluded.",
@@ -211,28 +305,28 @@
       },
       {
         "prompt": "Empty",
-        "adapter": "Correct image",
+        "adapter": "Matched guidance",
         "psnr_db": 31.811783,
         "ssim": 0.787725,
         "mae": 0.023156
       },
       {
         "prompt": "Detailed",
-        "adapter": "Correct image",
+        "adapter": "Matched guidance",
         "psnr_db": 31.81745,
         "ssim": 0.787747,
         "mae": 0.023143
       },
       {
         "prompt": "Detailed + photo",
-        "adapter": "Correct image",
+        "adapter": "Matched guidance",
         "psnr_db": 31.817791,
         "ssim": 0.787734,
         "mae": 0.023143
       },
       {
         "prompt": "Detailed + photo",
-        "adapter": "Wrong image",
+        "adapter": "Mismatched guidance",
         "psnr_db": 31.738986,
         "ssim": 0.78765,
         "mae": 0.023208

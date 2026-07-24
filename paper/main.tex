@@ -1,4 +1,4 @@
-\documentclass[10pt,twocolumn]{article}
+\documentclass[10pt]{article}
 
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
@@ -14,7 +14,9 @@
 \usepackage{subcaption}
 \usepackage{enumitem}
 \usepackage{xspace}
+\usepackage{cuted}
 \usepackage{xcolor}
+\usepackage{xurl}
 \usepackage[numbers,sort&compress]{natbib}
 \usepackage[
   colorlinks=true,
@@ -31,8 +33,20 @@
 \captionsetup{font=small,labelfont=bf}
 
 \newcommand{\method}{LARP-Scaler\xspace}
-\newcommand{\todo}[1]{\textcolor{red!70!black}{\textbf{TODO: #1}}}
 \newcommand{\R}{\mathbb{R}}
+\makeatletter
+\newcommand{\LarpFrontMatter}{%
+  \begin{@twocolumnfalse}
+    \maketitle
+    \begin{center}
+      \begin{minipage}{0.90\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/larp_before_after_hero.png}
+      \end{minipage}
+    \end{center}
+  \end{@twocolumnfalse}%
+}
+\makeatother
 
 \title{\textbf{LARP-Scaler: Direct Latent Refinement for\\Fast Multi-Scale Image Super-Resolution}}
 
@@ -42,67 +56,43 @@
 }
 
 \date{Draft preprint, July 2026}
+\hypersetup{
+  pdftitle={LARP-Scaler: Direct Latent Refinement for Fast Multi-Scale Image Super-Resolution},
+  pdfauthor={Vladimir Melnikov, Maxim Manushin, Ilia Kuleshov},
+  pdfsubject={Technical preprint on latent image super-resolution}
+}
 
 \begin{document}
-\maketitle
-
-% These two full-width visual summaries are intentionally non-floating.  They
-% occupy dedicated single-column pages, then the body resumes in two columns.
-\clearpage
-\onecolumn
-\begin{center}
-\begin{minipage}{0.96\textwidth}
-  \centering
-  \includegraphics[width=\linewidth]{figures/larp_before_after_hero.png}
-  \captionof{figure}{\textbf{LARP-Scaler image upscaling.} A real $512\times512$ input
-  (left) and the $2048\times2048$ output of the released $4\times$
-  LARP-Scaler checkpoint (right).}
-  \label{fig:larp_before_after}
-\end{minipage}
-\end{center}
-
-\clearpage
-\begin{center}
-\begin{minipage}{0.96\textwidth}
-  \centering
-  \includegraphics[width=\linewidth]{figures/larp_pid_lua_image_upscale_examples.png}
-  \captionof{figure}{\textbf{Image-upscaling examples in valid operating regimes.}
-  Native PiD is evaluated at $512\!\to\!2048$, while LUA-FLUX with the Flux
-  VAE is evaluated at $256\!\to\!1024$; both rows use real images encoded by
-  the VAE, followed by latent upscaling and final decoding. The rows are
-  illustrative examples, not a cross-resolution metric comparison.}
-  \label{fig:pid_lua_image_upscale_examples}
-\end{minipage}
-\end{center}
-\clearpage
-\twocolumn
+% The optional argument creates a non-floating full-width banner at the top of
+% the first two-column page.  The abstract then fills the remaining space.
+\twocolumn[\LarpFrontMatter]
 
 \begin{abstract}
-Modern latent image generators provide expressive priors, but converting them
-into practical image upscalers introduces an efficiency--fidelity trade-off:
-pixel-space restoration is inexpensive but can be conservative, while
-generative super-resolution can synthesize detail at substantial cost.
-We present \method, a multi-scale image upscaler that directly refines the
-latent encoding of a conventionally resized image with a SANA-based linear
-Diffusion Transformer. A separate image-guidance adapter encodes the original
-low-resolution observation, upsamples its latent features, and injects them
-through zero-initialized gated cross-attention. The released runtime supports
-$2\times$, $4\times$, and $8\times$ enlargement, removes the text encoder by
-shipping cached prompt tensors, and combines native VAE tiling with overlapped,
+Latent image generators provide expressive priors, but practical
+super-resolution must balance synthesized detail against exact reconstruction
+and runtime cost. We present \method, a multi-scale upscaler that starts from
+the VAE encoding of a conventionally resized image and directly refines this
+structured latent with a SANA-based linear Diffusion Transformer. A
+zero-initialized adapter independently encodes the low-resolution observation
+and injects its features through gated attention. The released runtime supports
+$2\times$, $4\times$, and $8\times$ enlargement, ships cached prompt tensors
+instead of a text encoder, and combines native VAE tiling with overlapped,
 shifted-grid DiT tiling.
 
-We also describe the data pipeline used to assemble 288,423 captioned training
-records. It combines native-resolution no-reference quality measurements,
-DINOv2 embeddings, two VLM-distilled quality predictors, deterministic
-artifact gates, and domain-aware handling of photographic and non-photographic
-content. On controlled $4\times$ reference reconstruction from 128 to 512
-pixels, \method obtains 31.817 dB PSNR on 12 photographs, compared with 29.641
-dB for Real-ESRGAN and 19.554 dB for LUA. On 12 anime
-images it obtains the highest PSNR and lowest MAE among the tested methods,
-while Real-ESRGAN retains a small SSIM advantage. An adapter ablation attributes 0.514 dB to image
-guidance in the deployed prompt configuration. These results are limited,
-protocol-specific reconstruction measurements rather than a claim of
-universal perceptual superiority.
+The model is trained through a progressive curriculum on 288,423 captioned
+records selected by native-resolution measurements, DINOv2 features,
+VLM-distilled quality models, and domain-aware artifact gates. On controlled
+$4\times$ reconstruction, \method reaches 31.817 dB PSNR on 12 photographs,
+ahead of Real-ESRGAN (29.641 dB) and LUA (19.554 dB), but below the
+protocol-matched Lanczos baseline (33.434 dB). The same distortion--generation
+trade-off appears on 12 anime images. A separate 48-photo, 2048-pixel matrix
+evaluates all three scales; at $8\times$, \method is within 0.086 dB PSNR of
+Lanczos, while interpolation retains a larger advantage at $2\times$ and
+$4\times$. LPIPS and DISTS results are mixed, and 95\% bootstrap intervals are
+wide on the 12-image sets. Disabling the trained adapter branch changes PSNR by
+0.514 dB, whereas matched rather than mismatched guidance accounts for 0.079
+dB under the same protocol. These measurements characterize specific
+reconstruction settings rather than universal perceptual superiority.
 \end{abstract}
 
 \section{Introduction}
@@ -150,13 +140,15 @@ Our contributions are:
   $4\times$, and $8\times$ super-resolution;
   \item a zero-initialized image-guidance adapter and a text-encoder-free,
   tiled inference implementation; and
-  \item a documented 288k-image data pipeline plus controlled quality, speed,
-  and component ablations.
+  \item a documented progressive training curriculum and 288k-image data
+  pipeline, together with controlled quality, speed, and component ablations.
 \end{itemize}
 
-The present work is deliberately scoped as a technical preprint. Before
-archival submission we will add perceptual and human-preference evaluation,
-the public Gradio URL, and the arXiv identifier.
+The code, checkpoint, and public demo are available at
+\url{https://github.com/Vovanm88/LARP-Scaler},
+\url{https://huggingface.co/VladimirM388/larpscaler-v2-bf16}, and
+\url{https://huggingface.co/spaces/Anonumous/LARP-Scaler}. Human-preference
+evaluation and an arXiv identifier remain pending.
 
 \section{Related Work}
 \label{sec:related}
@@ -168,9 +160,9 @@ targets blind real-world restoration using high-order synthetic degradations
 and remains a strong, efficient pixel-space baseline. Distortion metrics such
 as PSNR and SSIM~\cite{wang2004ssim} favour correspondence to a known target,
 whereas learned metrics such as LPIPS~\cite{zhang2018lpips} and
-DISTS~\cite{ding2020dists} better approximate perceptual similarity. Our
-current evaluation reports the former family and explicitly treats missing
-perceptual and human-preference evaluation as a limitation.
+DISTS~\cite{ding2020dists} better approximate perceptual similarity. We report
+both distortion and learned perceptual distances; human-preference evaluation
+remains outside the present study.
 
 \paragraph{Latent generative models.}
 Latent diffusion models~\cite{rombach2022ldm} move denoising from pixels to a
@@ -185,8 +177,10 @@ Flow matching~\cite{lipman2023flow} learns a time-dependent vector field
 between probability paths and provides a convenient basis for continuous-time
 generative models. The \method runtime uses a FlowMatch Euler scheduler with a
 short sigma schedule beginning at a user-selected refinement level. The
-released quality preset uses four steps, while the measured fast reconstruction
-preset uses one step.
+runtime permits multiple Euler steps, but the released checkpoint is evaluated
+with one-step direct refinement. Additional steps are not assumed to improve
+quality: the four-step setting was worse in internal reconstruction checks and
+is therefore not presented as a quality preset.
 
 \paragraph{Latent and pixel decoding approaches.}
 LUA~\cite{razin2025lua} performs single-pass latent upscaling with a lightweight
@@ -227,8 +221,9 @@ target-sized latent
   \R^{B\times 32\times H_z\times W_z}.
 \end{equation}
 Unlike a noise-initialized image-generation pipeline, \method retains
-$\bm{z}_{0}$ as the initial state. A flow-matching transformer predicts the
-update field at a sequence of effective noise levels
+$\bm{z}_{0}$ as the initial state; no Gaussian noise is added at inference.
+A flow-matching transformer predicts the update field at a sequence of
+effective refinement levels
 $\{\sigma_k\}_{k=1}^{K}$. For the linear schedule used in the reported
 experiments,
 \begin{equation}
@@ -237,9 +232,19 @@ experiments,
   \frac{k-1}{K-1}
   \left(\sigma_{\max}-\frac{\sigma_{\max}}{K}\right),
 \end{equation}
-with the one-step case defined simply as $\sigma_1=\sigma_{\max}$. The scheduler
-converts these effective values to the shifted parameterization expected by
-the checkpoint and updates the latent after each predicted vector field.
+with the one-step case defined simply as $\sigma_1=\sigma_{\max}$. The runtime
+unshifts these effective values according to the checkpoint scheduler and
+appends the terminal value $\sigma_{K+1}=0$. Each FlowMatch Euler update is
+\begin{equation}
+  \bm{z}_{k+1}=\bm{z}_{k}
+  +(\sigma_{k+1}-\sigma_k)\,
+  \bm{v}_{\theta}(\bm{z}_{k},\sigma_k,\bm{z}_{g},s).
+\end{equation}
+At inference the unknown clean component of the training interpolation path
+cannot be constructed, so the resized-image latent is used directly as the
+initial estimate. Consequently, $\sigma_{\max}$ acts as a refinement step
+size rather than asserting that the initial state is an exact sample from the
+training path.
 
 \subsection{SANA transformer backbone}
 
@@ -295,61 +300,160 @@ can disagree with native VAE crop geometry.
 
 The DiT is tiled independently in latent space. Given latent tile size $T$ and
 overlap $O$, each tile produces an updated latent $\widehat{\bm{z}}_i$. A
-separable Hann window $\bm{W}_i$ blends all predictions:
+separable Hann window $\bm{W}_i$, clamped elementwise to a minimum of
+$10^{-3}$ so that outer image edges retain non-zero support, blends all
+predictions:
 \begin{equation}
   \bm{z}^{k+1} =
   \frac{\sum_i \bm{W}_i\odot\widehat{\bm{z}}_i^{k+1}}
        {\sum_i \bm{W}_i+\epsilon}.
 \end{equation}
-Every tile reads from the same globally assembled latent for a given step. On
-odd-numbered steps, the grid is shifted by half a stride so that boundaries do
-not remain fixed across the trajectory. Accumulation and weights use FP32,
-while VAE and transformer passes use the checkpoint dtype.
+The accumulated weights are normalized with a minimum denominator of
+$10^{-6}$. Every tile reads from the same globally assembled latent for a
+given step. On alternate steps after the first, the grid is shifted by half a
+stride so that boundaries do not remain fixed across the trajectory.
+Accumulation and weights use FP32, while VAE and transformer passes use the
+checkpoint dtype.
 
 Tile batches are selected from available accelerator memory, capped at 16
 tiles, and reduced by half following CUDA out-of-memory errors. Classifier-free
 guidance is included in this memory estimate because it doubles the model
 batch.
 
-\subsection{Training objective and final-stage optimization}
+\subsection{Progressive training curriculum}
 \label{sec:training}
 
-The released checkpoint is initialized from
-\texttt{supups-upscaler-v1-sft/checkpoint-6000}, then optimized for 4,000
-additional direct-refinement updates. This distinction matters: the following
-recipe and trace describe the final released stage, not SANA pretraining or
-the complete history of the predecessor checkpoint.
+We did not change a text-to-image checkpoint into a direct refiner in a single
+optimization run. The training curriculum progressively changes the data
+distribution, conditioning mechanism, and finally the flow endpoints. All
+stages are full-parameter updates rather than LoRA training. The curriculum is
+summarized in \cref{tab:curriculum}.
 
-We train with the Z-Image flow scheduler (shift 3, 1,000 training timesteps),
-biased timestep sampling with factor 2, and no explicit timestep weighting.
-The logged scalar objective is
+\begin{table*}[t]
+  \centering
+  \caption{Progressive curriculum leading to the released checkpoint. ``Mixed''
+  denotes the v1 objective that retains the original noise endpoint while
+  replacing the clean-side input by a degraded latent with probability 0.5.}
+  \label{tab:curriculum}
+  \small
+  \begin{tabular}{p{0.17\textwidth}p{0.24\textwidth}p{0.25\textwidth}p{0.25\textwidth}}
+    \toprule
+    Stage & Initialization and trainable modules & Path / objective & Purpose\\
+    \midrule
+    Domain and schedule adaptation &
+    Upstream SANA; all DiT parameters &
+    Standard clean--noise flow matching on our curated images under the
+    Z-Image schedule &
+    Move the generative prior toward the target image distribution before
+    asking it to restore LR observations.\\
+    Adapter warm-up (v1 CPT) &
+    Adapted SANA plus a new zero-initialized image branch; backbone and adapter
+    jointly trainable &
+    Mixed clean/degraded source with probability 0.5; conventional flow target &
+    Learn multi-scale LR conditioning without abruptly discarding the
+    generative behavior.\\
+    Adapter SFT &
+    v1 milestone 10,000; all transformer and adapter parameters &
+    Same mixed path on a stricter quality-filtered subset without the retained
+    defect subset &
+    Consolidate restoration and conditioning on cleaner targets; checkpoint
+    6,000 initializes the released final stage.\\
+    Direct refinement &
+    v1-SFT checkpoint 6,000; all transformer and adapter parameters &
+    100\% degraded-to-clean latent path plus pixel and high-frequency losses &
+    Match the short refinement trajectory used by the public runtime.\\
+    \bottomrule
+  \end{tabular}
+\end{table*}
+
+\paragraph{Stage 1: adapting the SANA prior.}
+We first adapt all SANA DiT parameters to our curated image distribution and
+the Z-Image/FLUX-style flow schedule (shift 3, 1,000 training timesteps).
+The broad CPT phase includes a wider quality range and deliberately retained
+defect examples; subsequent SFT uses cleaner, more caption-aligned data. This
+stage contains no image-guidance adapter. Its role is to shift the image prior
+and flow behavior before introducing the structurally different
+super-resolution task.
+
+\paragraph{Stages 2--3: introducing and stabilizing image guidance.}
+We then attach the adapter described in \cref{sec:adapter}. Its residual gates
+and first-block feed-forward injection are initialized to zero, so the new
+branch initially leaves the adapted backbone unchanged. The 256-channel
+guidance encoder, three scale-dependent upsampling stages, ten image
+cross-attention modules (one in every second block of the 20-block DiT), and
+the complete SANA backbone are optimized jointly.
+
+For a clean latent $\bm{z}_{\mathrm{HR}}$, Gaussian noise
+$\bm{\epsilon}$, and Bernoulli variable $b\sim\mathrm{Bernoulli}(0.5)$, the
+v1 stages use
+\begin{align}
+  \bm{z}_{\mathrm{src}} &=
+  \begin{cases}
+    \bm{z}_{\mathrm{deg}}, & b=1,\\
+    \bm{z}_{\mathrm{HR}}, & b=0,
+  \end{cases}\\
+  \bm{z}_{\sigma}^{\mathrm{mixed}}
+    &= (1-\sigma)\bm{z}_{\mathrm{src}}+\sigma\bm{\epsilon},\\
+  \bm{v}^{*}_{\mathrm{mixed}}
+    &= \bm{\epsilon}-\bm{z}_{\mathrm{HR}}.
+\end{align}
+Thus half of the examples expose the backbone to a target-sized degraded
+latent while the target retains the conventional clean-to-noise flow field.
+Independently, the adapter always receives the true low-resolution latent and
+the selected scale. This mixed stage teaches the new image path while
+preserving a generative fallback. The v1 SFT stage then resumes from v1
+milestone 10,000, raises the quality threshold to 0.8, removes the retained
+defect subset,
+and retains the 0.5 mixture. We select its checkpoint 6,000 for the final
+stage.
+
+\paragraph{Stage 4: changing the target to direct refinement.}
+The final stage changes the problem rather than merely continuing SFT.
+For every example, an area-downsampled crop supplies the guidance image;
+random bilinear or bicubic interpolation produces
+$\bm{z}_{\mathrm{deg}}$ at target size. Factors $2$, $4$, and $8$ are sampled
+uniformly. With \texttt{refine\_flow: direct} and degraded-input probability
+1.0, training uses
+\begin{align}
+  \bm{z}_{\sigma}^{\mathrm{direct}}
+    &= (1-\sigma)\bm{z}_{\mathrm{HR}}
+       +\sigma\bm{z}_{\mathrm{deg}},\\
+  \bm{v}^{*}_{\mathrm{direct}}
+    &= \bm{z}_{\mathrm{deg}}-\bm{z}_{\mathrm{HR}}.
+\end{align}
+The model therefore learns the same degraded-to-clean direction traversed by
+short-step inference, rather than a full noise-to-image generation path.
+
+The predicted clean latent
+$\widehat{\bm{z}}_{\mathrm{HR}}=
+\bm{z}_{\sigma}^{\mathrm{direct}}-\sigma\bm{v}_{\theta}$ is decoded at
+512 pixels. The final scalar objective is
 \begin{equation}
+\begin{split}
   \mathcal{L} =
-  \mathcal{L}_{\mathrm{flow}} +
-  0.3\,\mathcal{L}_{\mathrm{recon}} +
-  0.5\,\mathcal{L}_{\mathrm{HF}},
+  \underbrace{\operatorname{MSE}
+  (\bm{v}_{\theta},\bm{v}^{*}_{\mathrm{direct}})}
+  _{\mathcal{L}_{\mathrm{flow}}}
+  +0.3\underbrace{\lVert\widehat{\bm{x}}_{\mathrm{HR}}
+  -\bm{x}_{\mathrm{HR}}\rVert_1}_{\mathcal{L}_{\mathrm{recon}}}\\
+  {}+0.5\underbrace{\lVert\Delta\widehat{\bm{x}}_{\mathrm{HR}}
+  -\Delta\bm{x}_{\mathrm{HR}}\rVert_1}_{\mathcal{L}_{\mathrm{HF}}}\;,
+  \end{split}
 \end{equation}
-where $\mathcal{L}_{\mathrm{HF}}$ is the configured Laplacian
-high-frequency term and reconstruction is decoded at 512 pixels. The
-AutoencoderDC decoder remains frozen during this stage: its configured
-unfreeze point is update 1,000,000, beyond the 4,000-update run.
+where $\widehat{\bm{x}}_{\mathrm{HR}}$ is the frozen VAE-decoder output and
+$\Delta$ is the normalized $3\times3$ Laplacian response. Gradients pass
+through the decoder to the transformer and adapter, but decoder parameters
+remain frozen throughout the reported stage.
 
 Optimization uses AdamW with learning rate $2\times10^{-5}$, weight decay
-0.01, BF16 precision, DeepSpeed ZeRO-2, gradient clipping at 2.0, and seed
-6769. Warm-up and cooldown each occupy 1\% of the run; the plateau controller
-uses factor 0.8 and patience 4. Each of three training processes uses batch
-size 2 and accumulates 16 microbatches, giving an effective optimizer batch of
-96. A fourth RTX 5090 performs online VAE-cache production on
-\texttt{cuda:0}. This process allocation is also independently consistent
-with the final Trackio values: $8.4627$ effective samples/s multiplied by
-$11.3438$ s per optimizer step equals 96 samples.
-
-Training examples use 1024-pixel crops decoded from source images at up to
-2048 pixels. Factors $2$, $4$, and $8$ are sampled; the final stage always
-uses degraded inputs. The filtered split requires quality score at least 0.8,
-excludes the bad pool, reserves 1\% for validation with split seed 52, applies
-7.5\% prompt dropout, and adds the image-type tag with probability 0.5.
-Validation runs every 100 updates for eight batches with seed 1234.
+0.01, BF16 precision, DeepSpeed ZeRO-2, gradient clipping at 2.0, and an
+effective optimizer batch of 96. Training examples use 1024-pixel crops
+decoded from source images at up to 2048 pixels. The final-stage split reserves
+1\% for validation, applies 7.5\% prompt dropout, and conditionally adds an
+image-type tag to the fixed prompt. The VAE and text encoders remain frozen;
+only the transformer--adapter module receives optimizer updates. Process
+allocation, cache production, seeds, validation cadence, and stage-boundary
+state are reported in \cref{app:implementation}.
 
 \section{Training Data Pipeline}
 \label{sec:data}
@@ -365,7 +469,7 @@ defects.
   \centering
   \includegraphics[width=0.98\columnwidth]{figures/data_pipeline.png}
   \caption{\textbf{Data pipeline.} Native-resolution measurements and DINOv2
-  embeddings feed two VLM-distilled quality students. Deterministic gates,
+  embeddings feed two VLM-distilled student quality models. Deterministic gates,
   captions, and a deliberately retained defect pool produce a training-ready
   corpus without copying the source images.}
   \label{fig:data_pipeline}
@@ -375,9 +479,9 @@ defects.
 
 The final metadata index contains 288,423 records from CommonCatalog, PD12M,
 4KLSDB, Unsplash, DIV8K, a small curated and synthetic fine-t2i set, and three
-high-resolution SFW anime sources (yande, konachan, and danbooru). Images remain in their source locations; the
-dataset stores absolute paths and metadata rather than duplicating hundreds of
-gigabytes.
+high-resolution SFW anime sources (yande, konachan, and danbooru). The pipeline
+stores source references and derived metadata rather than duplicating the
+image corpus.
 
 Each image is decoded at native resolution. Measurements include JPEG
 block-edge energy, a downsample--upsample Laplacian ratio, flat-patch noise,
@@ -385,9 +489,7 @@ local and global Laplacian statistics, Tenengrad, spectral slope,
 high-frequency energy, edge density, JPEG quantization estimates, bytes per
 pixel, borders, saturation, grayscale status, and a perceptual hash. The
 down--up ratio was the most useful blur/prior-upscale detector and achieved
-approximately 0.992 AUC on a labelled validation set. In a diagnostic
-CommonCatalog sample, 72\% of images triggered at least one native-resolution
-super-resolution flag that had been missed by the earlier thumbnail test.
+approximately 0.992 AUC on a labelled validation set. In a diagnostic CommonCatalog sample, 72\% of images triggered at least one native-resolution super-resolution flag that had been missed by the earlier thumbnail test.
 
 \subsection{VLM-distilled scoring}
 
@@ -395,38 +497,26 @@ We extract the CLS embedding from DINOv2-large~\cite{oquab2024dinov2} after a
 224-pixel resize. A photo-quality VLM rubric is informative for photographic
 content but systematically penalizes illustration. We therefore collect two
 teacher label sets: approximately 21k photo-rubric labels and 7.3k
-content-agnostic labels. The total external teacher cost was approximately
-\$14.3 under a \$15 cap.
+content-agnostic labels under a fixed annotation budget.
 
-Two small multi-layer perceptrons consume the DINOv2 embedding concatenated
-with standardized pixel features. Each has a scalar quality head and a
-watermark/overlay head. The photo student reaches Spearman
-$\rho\approx0.60$ against its teacher; the content-agnostic student reaches
-$\rho\approx0.36$. Although imperfect as absolute quality estimators, the two
-scores are inexpensive to evaluate over the full corpus and expose different
-domain biases.
+Two small multi-layer perceptrons consume the DINOv2 embedding concatenated with standardized pixel features. Each has a scalar quality head and a watermark/overlay head. The photo student reaches Spearman $\rho\approx0.60$ against its teacher; the content-agnostic student reaches $\rho\approx0.36$. Although imperfect as absolute quality estimators, the two scores are inexpensive to evaluate over the full corpus and expose different domain biases.
 
 \subsection{Gates, captions, and assembly}
 
-Three universal gates flag extreme blockiness, softness, and noise. Additional
-photo-oriented gates for local sharpness, borders, over-compression, and low
-edge density are stored but disabled by default because they over-fire on
-flat-shaded art. The default base-corpus decision combines universal gates,
-overlay probability, and a general quality threshold of 60 on a 0--100 scale.
+Three universal gates flag extreme blockiness, softness, and noise. Additional photo-oriented gates for local sharpness, borders, over-compression, and low edge density are stored but disabled by default because they over-fire on flat-shaded art. The default base-corpus decision combines universal gates, overlay probability, and a general quality threshold of 60 on a 0--100 scale.
 
-Existing source captions are reused where available. Missing short and long
-captions are generated by a local Qwen2.5-VL model~\cite{bai2025qwen25vl}.
+Existing source captions are reused where available. Missing short and long captions are generated by a local Qwen2.5-VL model~\cite{bai2025qwen25vl}.
 Rather than discarding every low-scoring item, we uniformly sample 2,500
 examples across the rejected score range. A VLM assigns one or more of 18
-defect tags, and their captions explicitly state the defect. This bad pool
-provides quality-conditioned negative examples.
+defect tags, and their captions explicitly state the defect. This retained
+defect subset provides quality-conditioned negative examples.
 
-Anime reveals a useful domain-shift case. The general student rates the images
-reasonably, while photo-calibrated softness and low-detail gates reject many
-valid flat-shaded illustrations. For the anime expansion we therefore keep
-images based on the learned score and caption presence, without the universal
-pixel gate. This yields 18,873 SFW anime records. Exact source counts are
-reported in \cref{tab:dataset_sources}.
+Anime reveals a useful domain-shift case. The content-agnostic student model
+rates the images reasonably, while photo-calibrated softness and low-detail
+gates reject many valid flat-shaded illustrations. For the anime expansion we
+therefore keep images based on the learned score and caption presence, without
+the universal pixel gate. This yields 18,873 SFW anime records. Exact source
+counts are reported in \cref{tab:dataset_sources}.
 
 \section{Experiments}
 \label{sec:experiments}
@@ -434,16 +524,31 @@ reported in \cref{tab:dataset_sources}.
 \subsection{Evaluation protocols}
 
 \paragraph{Reference reconstruction.}
-For each quality set, a known 512-pixel target is downsampled to 128 pixels with
-Lanczos and upscaled by a factor of four. We report average PSNR, SSIM, and MAE.
-The photo and anime sets each contain 12 public or externally curated raster
-images. All methods in a shared table receive the same domain inputs; results
-from separate matrices are not merged. \method is evaluated with the fast
-reconstruction preset: one refinement step, $\sigma_{\max}=0.35$, guidance
-scale 1, BF16, seed 1234, and VAE tiling enabled. The same settings are used
-for the ablation below, so \cref{tab:photo_quality} and the best row of
-\cref{tab:full_ablation} measure the same configuration and differ only by
-runtime caching details.
+For each headline quality set, a known 512-pixel target is downsampled to 128
+pixels with Lanczos and upscaled by a factor of four. We report RGB,
+full-frame PSNR, SSIM, and MAE on a $[0,1]$ range; SSIM uses an $11\times11$
+uniform window. The photo and anime sets each contain 12 public or externally
+curated raster images. Bicubic and Lanczos resize the saved low-resolution
+inputs directly to the target size and therefore act as deterministic,
+protocol-matched interpolation baselines. All methods in a shared table
+receive the same inputs.
+
+\method uses the evaluated reconstruction preset: one refinement step,
+$\sigma_{\max}=0.35$, guidance scale 1, BF16, and VAE tiling. The
+same settings are used for the ablation below, so
+\cref{tab:photo_quality,tab:full_ablation} differ only by runtime caching
+details. We compute 95\% percentile bootstrap confidence intervals over images
+with 10,000 resamples. The intervals are reported in \cref{app:bootstrap};
+per-image values are provided in
+\path{paper/data/revision/controlled_x4_12_per_image.csv} and
+\path{paper/data/revision/revision_benchmarks.json}.
+
+\paragraph{Expanded multi-scale reconstruction.}
+A separate matrix uses 48 external photographs with 2048-pixel center-crop
+targets and Lanczos-downsampled inputs at $2\times$, $4\times$, and $8\times$.
+It uses the same one-step \method preset and the same interpolation and metric
+implementations. This matrix evaluates scale behavior but is not pooled with
+the two 12-image headline sets.
 
 \paragraph{Latency.}
 All timing uses an NVIDIA GeForce RTX 5090 with models already resident in
@@ -458,17 +563,16 @@ $2\times$ and $8\times$ conditions.
 \paragraph{Ablation.}
 Prompt and image-adapter components are evaluated on 12 photographs at
 128-to-512 $4\times$ reconstruction with one refinement step,
-$\sigma_{\max}=0.35$, guidance scale 1, BF16, and seed 1234. Latent caches are
-disabled and every configuration receives the same images.
+$\sigma_{\max}=0.35$, guidance scale 1, and BF16. Latent caches are disabled
+and every configuration receives the same images. Exact deterministic settings
+are listed in \cref{app:implementation}.
 
 \subsection{Training trace}
 
-The final direct-refinement run lasted 49,006 s (13 h 36 min 46 s) from
-5--6 July 2026. Peak allocated memory reported by the logging process was
+The final direct-refinement run lasted 49,006 s (13 h 36 min 46 s). Peak
+allocated GPU memory was
 21.77 GB. Validation loss decreased from 0.1954 at update 100 to 0.1452 at
-update 4,000, a 25.69\% relative reduction. The final exported transformer's
-SHA-256 digest matches the public bundle and milestone 4,000:
-\texttt{c0496dd0\ldots 74ba830}. Machine-readable provenance and milestone
+update 4,000, a 25.69\% relative reduction. Machine-readable provenance and milestone
 values are included in \texttt{paper/data/training\_run.json}.
 
 \begin{figure}[H]
@@ -484,14 +588,17 @@ values are included in \texttt{paper/data/training\_run.json}.
 
 \begin{table}[H]
   \centering
-  \caption{Shared $4\times$ photo reconstruction set (12 images).}
+  \caption{Shared $4\times$ photo reconstruction set (12 images). Interpolation
+  baselines are evaluated on the saved Lanczos-downsampled inputs.}
   \label{tab:photo_quality}
   \small
   \begin{tabular}{lccc}
     \toprule
     Method & PSNR $\uparrow$ & SSIM $\uparrow$ & MAE $\downarrow$\\
     \midrule
-    \textbf{\method} & \textbf{31.8170} & \textbf{0.7877} & \textbf{0.02314}\\
+    Lanczos & \textbf{33.4340} & \textbf{0.8308} & \textbf{0.01910}\\
+    Bicubic & 33.2358 & 0.8248 & 0.01943\\
+    \method & 31.8170 & 0.7877 & 0.02314\\
     Real-ESRGAN & 29.6409 & 0.7587 & 0.02846\\
     LUA & 19.5536 & 0.4071 & 0.09247\\
     \bottomrule
@@ -500,26 +607,68 @@ values are included in \texttt{paper/data/training\_run.json}.
 
 \begin{table}[H]
   \centering
-  \caption{Shared $4\times$ anime reconstruction set (12 images).}
+  \caption{Shared $4\times$ anime reconstruction set (12 images). Interpolation
+  baselines are evaluated on the saved Lanczos-downsampled inputs.}
   \label{tab:anime_quality}
   \small
   \begin{tabular}{lccc}
     \toprule
     Method & PSNR $\uparrow$ & SSIM $\uparrow$ & MAE $\downarrow$\\
     \midrule
-    \textbf{\method} & \textbf{28.4394} & 0.8560 & \textbf{0.02382}\\
+    Lanczos & \textbf{28.7939} & 0.8650 & \textbf{0.02184}\\
+    Bicubic & 28.3830 & 0.8614 & 0.02190\\
+    \method & 28.4394 & 0.8560 & 0.02382\\
     Real-ESRGAN & 26.7850 & \textbf{0.8695} & 0.02559\\
     LUA & 17.2268 & 0.3653 & 0.10970\\
     \bottomrule
   \end{tabular}
 \end{table}
 
-\Cref{tab:photo_quality,tab:anime_quality} show that \method achieves the
-highest PSNR and lowest MAE on both controlled sets. The 2.176 dB photo PSNR
-margin over Real-ESRGAN corresponds to substantially lower mean squared error
-under the same reference protocol. On anime, Real-ESRGAN has a small SSIM
-advantage of 0.0135. This is an important counterexample to reducing quality to
-one headline metric.
+\Cref{tab:photo_quality,tab:anime_quality} separate two comparisons. Among the
+learned methods, \method has the highest PSNR and lowest MAE on both sets,
+including a 2.176 dB photo PSNR margin over Real-ESRGAN. The interpolation
+baselines, however, retain more reference pixels: Lanczos leads photo PSNR by
+1.617 dB and anime PSNR by 0.355 dB over \method. This is expected because the
+inputs themselves are produced by Lanczos and interpolation does not synthesize
+new texture that can be penalized by paired distortion metrics. The 95\%
+bootstrap intervals are wide and overlapping on these small sets. Real-ESRGAN
+retains the highest anime SSIM, further illustrating that no single metric
+defines the ranking.
+
+\begin{table}[H]
+  \centering
+  \caption{Separate multi-scale reconstruction matrix on 48 external
+  photographs with 2048-pixel targets. All rows use the same target crops and
+  Lanczos-downsampled inputs.}
+  \label{tab:multiscale48}
+  \small
+  \begin{tabular}{llccc}
+    \toprule
+    Scale & Method & PSNR $\uparrow$ & SSIM $\uparrow$ & MAE $\downarrow$\\
+    \midrule
+    \multirow{3}{*}{$2\times$}
+      & Lanczos & \textbf{36.6473} & \textbf{0.9120} & \textbf{0.01287}\\
+      & Bicubic & 36.1985 & 0.9059 & 0.01336\\
+      & \method & 30.2797 & 0.7641 & 0.02451\\
+    \midrule
+    \multirow{3}{*}{$4\times$}
+      & Lanczos & \textbf{32.0484} & \textbf{0.8221} & \textbf{0.01973}\\
+      & Bicubic & 31.8412 & 0.8168 & 0.02000\\
+      & \method & 30.7892 & 0.7875 & 0.02272\\
+    \midrule
+    \multirow{3}{*}{$8\times$}
+      & Lanczos & \textbf{29.2018} & \textbf{0.7348} & \textbf{0.02532}\\
+      & Bicubic & 29.0510 & 0.7303 & 0.02556\\
+      & \method & 29.1155 & 0.7336 & 0.02589\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+At $8\times$, the \method PSNR gap to Lanczos narrows to 0.086 dB and
+\method exceeds Bicubic by 0.064 dB; their confidence intervals overlap. At
+$2\times$ and $4\times$, conservative interpolation retains a clear distortion
+advantage. The matrix therefore supports multi-scale operation, but not
+distortion-metric leadership over interpolation.
 
 PiD is designed to synthesize high-resolution pixel detail from latent
 conditioning. We therefore exclude it from the 512-pixel headline tables: the
@@ -596,7 +745,7 @@ to learned perceptual distances.
 
 \subsection{Latency}
 
-\begin{table*}[H]
+\begin{table}[H]
   \centering
   \caption{Median end-to-end latency in seconds for 1024-pixel output on 24
   photographs. Each cell aggregates 240 calls. Lower is better.}
@@ -611,7 +760,7 @@ to learned perceptual distances.
     Real-ESRGAN & 1.0253 & 0.6681 & \textbf{0.6134}\\
     \bottomrule
   \end{tabular}
-\end{table*}
+\end{table}
 
 The 1024-pixel PiD latency row is excluded because it uses the same 2k-native
 checkpoint out of its intended output regime. At $4\times$, \method is 30.8\%
@@ -643,27 +792,28 @@ not universal speed leadership.
     \midrule
     Detailed prompt, adapter off & +0.0166 & 0.38\%\\
     Detailed prompt, adapter on & +0.0057 & 0.13\%\\
-    Correct adapter, tagged prompt & \textbf{+0.5138} & \textbf{11.16\%}\\
-    Correct vs.\ wrong image & +0.0788 & 1.80\%\\
+    Adapter branch, tagged prompt & \textbf{+0.5138} & \textbf{11.16\%}\\
+    Matched vs.\ mismatched guidance & +0.0788 & 1.80\%\\
     \bottomrule
   \end{tabular}
 \end{table}
 
 Measured on the same 12 photographs and the same one-step protocol, the
 released checkpoint improves on the untrained SANA backbone by 10.555 dB
-(21.2628 to 31.8178 dB in the tagged-prompt, correct-adapter configuration;
+(21.2628 to 31.8178 dB in the tagged-prompt, matched-guidance configuration;
 see \cref{tab:full_ablation}). That gap is the combined effect of the
 direct-refinement training stage and the guidance branch, and unlike the
 cross-protocol comparison in \cref{app:extra} it is measured on identical
 inputs.
 
-The image adapter is the largest incremental feature within the trained
-system: in the tagged-prompt configuration it raises PSNR from 31.3040 to
-31.8178 dB. Supplying the correct image rather than an unrelated image accounts
-for 0.0788 dB, showing that the branch uses image content rather than acting
-only as an architecture-dependent bias. Prompt gains are positive but small,
-and shrink after image guidance is enabled, consistent with both conditions
-providing partially redundant information.
+Enabling the trained adapter branch is the largest measured architectural
+change within the released system: in the tagged-prompt configuration it
+raises PSNR from 31.3040 to 31.8178 dB. Replacing mismatched guidance by the
+matched low-resolution image accounts for only 0.0788 dB. This suggests a
+measurable but small content-specific contribution under this protocol; the
+larger branch-on difference should not be attributed entirely to matched image
+content. Prompt gains are positive but small and shrink after the adapter is
+enabled.
 
 \begin{figure}[H]
   \centering
@@ -676,32 +826,50 @@ providing partially redundant information.
 \subsection{Qualitative comparison}
 
 \Cref{fig:qualitative} shows the released checkpoint against Real-ESRGAN and
-PiD on four of the twelve shared photographs. Regenerating these outputs with
-the public package and the published BF16 bundle reproduced the per-image PSNR
-values of \cref{tab:photo_quality} to within 0.003 dB, so the montage depicts
-the same system that produced the reported aggregates. The panel also makes the
-metric discussion concrete: the 512-pixel PiD column shows the regular lattice
-artifact that led us to exclude it from the quality tables (its valid
-native-resolution scores are in \cref{tab:pid_native_quality}), Real-ESRGAN
-produces smooth, conservative texture, and \method stays closest to the
-reference while still recovering edge detail. The first row is the unfavourable
-case, where Real-ESRGAN is closer to the target.
-
+PiD on four photographs from the native-resolution benchmark. Every method
+receives the same $512\times512$ LR input and produces a $2048\times2048$
+output. PiD therefore runs at the intended resolution of its released
+\texttt{res2k\_sr4x} checkpoint, with four distilled steps, rather than being
+forced into the invalid 512-pixel-output regime. The displayed files are the
+same outputs scored in \cref{tab:pid_native_quality}. Real-ESRGAN tends toward
+smooth, conservative texture; PiD can introduce plausible high-frequency
+detail; and \method remains closer to the paired reference on these examples.
+\newpage
+\begin{strip}
+\centering
+    %
+        \begin{minipage}{0.99\textwidth}
 \begin{figure}[H]
-  \centering
-  \includegraphics[width=\columnwidth]{figures/qualitative_comparison.jpg}
-  \caption{\textbf{Qualitative comparison} on the shared $4\times$ photo set,
-  produced with the released checkpoint and the public package under the
-  protocol of \cref{tab:photo_quality}. Cases are not hand-picked: the twelve
-  photographs were ranked by per-image PSNR difference between \method and
-  Real-ESRGAN and four evenly spaced ranks were taken, so the panel spans the
-  observed range. Photo 01 is the case where \method is \emph{worse} than
-  Real-ESRGAN ($-0.70$ dB); the remaining rows are $+1.32$, $+3.78$ and
-  $+6.80$ dB. The low-resolution column is enlarged with nearest-neighbour
-  sampling to show the actual input pixels.}
+  \includegraphics[width=0.95\textwidth]{figures/qualitative_comparison.jpg}
+  \caption{\textbf{Native-2K qualitative comparison} at $4\times$
+  ($512\!\to\!2048$). PiD uses its official
+  \texttt{PiD\_res2k\_sr4x} four-step operating regime; all columns share the
+  same LR inputs and targets. The four illustrative scenes cover fog and
+  vertical edges, flower structure, water and rock detail, and smooth
+  specular surfaces. Aggregate claims use all twelve images in
+  \cref{tab:pid_native_quality}; these four rows are not a separate benchmark.
+  The LR column is enlarged with nearest-neighbour sampling to expose its
+  actual pixels.}
   \label{fig:qualitative}
 \end{figure}
+        \end{minipage}%
 
+\end{strip}
+
+% Keep the cross-method visual comparison near the end, on a dedicated
+% full-width page rather than letting it disrupt the two-column discussion.
+%\iffalse
+%\clearpage
+%\onecolumn
+%\begin{center}
+%\begin{minipage}{0.96\textwidth}
+  %\centering
+  %\includegraphics[width=\linewidth]{figures/larp_pid_lua_image_upscale_examples.png}
+%\end{minipage}
+%\end{center}
+%\clearpage
+%\twocolumn
+%\fi
 \section{Limitations}
 \label{sec:limitations}
 
@@ -709,7 +877,9 @@ case, where Real-ESRGAN is closer to the target.
 The main quality comparisons contain 12 photographs and 12 anime images. They
 are controlled, reproducible reconstruction tests, but are not broad enough to
 characterize rare domains, difficult degradations, faces, text, or pathological
-compression.
+compression. The separate 48-photo matrix improves scale coverage but does not
+replace a broad public benchmark; bootstrap intervals on the 12-image sets are
+wide.
 
 \paragraph{Metric coverage.}
 PSNR, SSIM, and MAE emphasize exact reconstruction and do not fully represent
@@ -742,30 +912,34 @@ SFT checkpoint at update 6,000. Consequently, 13.6 hours is final-stage wall
 time rather than total end-to-end pretraining compute. The predecessor run is
 identified in the machine-readable provenance, but its earlier initialization
 contains restarted counters and is not summarized as a single total-compute
-claim. The public demo URL and the arXiv identifier also remain pending.
+claim. The arXiv identifier remains pending.
 
 \section{Conclusion}
 
-We introduced \method, a SANA-based super-resolution system that directly
-refines a target-sized latent while conditioning on an independently encoded
-low-resolution image. Its zero-initialized adapter, cached text embeddings, and
-two-level tiling design turn a generative transformer into a standalone
-$2\times$/$4\times$/$8\times$ upscaler. Controlled reconstruction results
-show strong pixel fidelity on small photo and anime sets, and ablations isolate
-a roughly 0.5 dB contribution from image guidance. The accompanying data
-pipeline illustrates that native-resolution quality control and
-domain-aware filtering are as important as the network design for extreme
-super-resolution. The next evaluation priority is a larger public benchmark
-with perceptual metrics and human preference, since the present evidence is
-restricted to reference reconstruction on small controlled sets.
+We introduced \method, a SANA-based system that directly refines a target-sized
+latent while conditioning on an independently encoded low-resolution image.
+Cached text tensors and two-level tiling make the same checkpoint usable at
+$2\times$, $4\times$, and $8\times$. On the two 12-image controlled sets,
+\method leads the tested learned baselines in PSNR and MAE, while
+protocol-matched interpolation retains the overall distortion advantage. The
+separate 48-photo matrix confirms operation at all three scales and shows that
+the PSNR gap to Lanczos narrows to 0.086 dB at $8\times$. Learned perceptual
+metrics do not produce a uniform ranking. The adapter-on ablation measures a
+0.514 dB branch effect, but matched rather than mismatched guidance explains
+only 0.079 dB under the same protocol. These results position \method as a
+practical generative refinement system rather than a replacement for
+conservative interpolation on paired distortion metrics. Broader public
+benchmarks, real degradations, and human preference are the main remaining
+evaluation priorities.
 
 \bibliographystyle{unsrtnat}
 \bibliography{references}
 
 \clearpage
 \appendix
-
+\onecolumn
 \section{Dataset Composition}
+
 \label{app:dataset}
 
 \begin{table}[H]
@@ -799,10 +973,12 @@ restricted to reference reconstruction on small controlled sets.
   \label{fig:dataset_composition}
 \end{figure}
 
+\clearpage
+\onecolumn
 \section{Full Prompt--Adapter Matrix}
 \label{app:ablation}
 
-\begin{table*}[H]
+\begin{table}[H]
   \centering
   \caption{Prompt and adapter states, sorted by component rather than score.}
   \label{tab:full_ablation}
@@ -820,13 +996,94 @@ restricted to reference reconstruction on small controlled sets.
     Empty & Off & 31.285856 & 0.783891 & 0.024537\\
     Detailed & Off & 31.302412 & 0.783989 & 0.024495\\
     Detailed + photo & Off & 31.303990 & 0.783969 & 0.024491\\
-    Empty & Correct image & 31.811783 & 0.787725 & 0.023156\\
-    Detailed & Correct image & 31.817450 & 0.787747 & 0.023143\\
-    Detailed + photo & Correct image & \textbf{31.817791} & 0.787734 & \textbf{0.023143}\\
-    Detailed + photo & Wrong image & 31.738986 & 0.787650 & 0.023208\\
+    Empty & Matched guidance & 31.811783 & 0.787725 & 0.023156\\
+    Detailed & Matched guidance & 31.817450 & 0.787747 & 0.023143\\
+    Detailed + photo & Matched guidance & \textbf{31.817791} & 0.787734 & \textbf{0.023143}\\
+    Detailed + photo & Mismatched guidance & 31.738986 & 0.787650 & 0.023208\\
     \bottomrule
   \end{tabular}
-\end{table*}
+\end{table}
+
+\section{Bootstrap Confidence Intervals}
+\label{app:bootstrap}
+
+We use percentile bootstrap intervals over images with 10,000 resamples and
+seed 1234. Intervals are computed independently for each method, domain, scale,
+and metric; no results from the 12-image and 48-image protocols are pooled.
+
+\begin{table}[H]
+  \centering
+  \caption{Controlled $4\times$ reconstruction means and 95\% bootstrap
+  confidence intervals. Each domain contains 12 images.}
+  \label{tab:controlled_ci}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llccc}
+    \toprule
+    Domain & Method & PSNR [95\% CI] & SSIM [95\% CI] & MAE [95\% CI]\\
+    \midrule
+    \multirow{5}{*}{Photo}
+      & Lanczos & 33.434 [29.756, 37.220] & 0.831 [0.774, 0.888] & 0.0191 [0.0123, 0.0270]\\
+      & Bicubic & 33.236 [29.538, 37.017] & 0.825 [0.767, 0.883] & 0.0194 [0.0124, 0.0275]\\
+      & \method & 31.817 [28.302, 35.267] & 0.788 [0.727, 0.851] & 0.0231 [0.0149, 0.0326]\\
+      & Real-ESRGAN & 29.641 [26.485, 32.701] & 0.759 [0.688, 0.832] & 0.0285 [0.0184, 0.0397]\\
+      & LUA & 19.554 [17.570, 21.441] & 0.407 [0.313, 0.502] & 0.0925 [0.0728, 0.1141]\\
+    \midrule
+    \multirow{5}{*}{Anime}
+      & Lanczos & 28.794 [25.978, 31.982] & 0.865 [0.809, 0.912] & 0.0218 [0.0155, 0.0291]\\
+      & Bicubic & 28.383 [25.739, 31.304] & 0.861 [0.806, 0.908] & 0.0219 [0.0157, 0.0291]\\
+      & \method & 28.439 [25.931, 31.187] & 0.856 [0.802, 0.901] & 0.0238 [0.0177, 0.0308]\\
+      & Real-ESRGAN & 26.785 [25.434, 28.047] & 0.869 [0.828, 0.901] & 0.0256 [0.0216, 0.0305]\\
+      & LUA & 17.227 [16.441, 18.025] & 0.365 [0.329, 0.402] & 0.1097 [0.1004, 0.1190]\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Separate 48-photo multi-scale reconstruction means and 95\%
+  bootstrap confidence intervals.}
+  \label{tab:multiscale_ci}
+  \scriptsize
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{llccc}
+    \toprule
+    Scale & Method & PSNR [95\% CI] & SSIM [95\% CI] & MAE [95\% CI]\\
+    \midrule
+    \multirow{3}{*}{$2\times$}
+      & Lanczos & 36.647 [34.739, 38.495] & 0.912 [0.884, 0.936] & 0.0129 [0.0095, 0.0171]\\
+      & Bicubic & 36.199 [34.314, 38.031] & 0.906 [0.876, 0.931] & 0.0134 [0.0099, 0.0177]\\
+      & \method & 30.280 [28.637, 31.861] & 0.764 [0.716, 0.808] & 0.0245 [0.0194, 0.0306]\\
+    \midrule
+    \multirow{3}{*}{$4\times$}
+      & Lanczos & 32.048 [30.322, 33.710] & 0.822 [0.777, 0.862] & 0.0197 [0.0151, 0.0253]\\
+      & Bicubic & 31.841 [30.127, 33.491] & 0.817 [0.770, 0.858] & 0.0200 [0.0154, 0.0256]\\
+      & \method & 30.789 [29.149, 32.363] & 0.787 [0.741, 0.829] & 0.0227 [0.0179, 0.0284]\\
+    \midrule
+    \multirow{3}{*}{$8\times$}
+      & Lanczos & 29.202 [27.625, 30.714] & 0.735 [0.681, 0.785] & 0.0253 [0.0200, 0.0316]\\
+      & Bicubic & 29.051 [27.486, 30.550] & 0.730 [0.676, 0.781] & 0.0256 [0.0202, 0.0318]\\
+      & \method & 29.115 [27.566, 30.602] & 0.734 [0.681, 0.782] & 0.0259 [0.0206, 0.0320]\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Implementation and Deterministic Settings}
+\label{app:implementation}
+
+The final direct-refinement stage uses training seed 6769, static loss scale
+64, 1\% warm-up and cooldown, and a plateau controller with factor 0.8 and
+patience 4. Three training workers use batch size 2 with 16 accumulation steps,
+giving effective batch size 96; a fourth GPU produces frozen VAE and text
+caches. The validation split uses seed 52. Validation runs every 100 updates
+for eight batches with seed 1234. Stage boundaries restore BF16 model weights
+but restart optimizer moments, scheduler history, RNG state, and data order.
+
+All reported \method reconstruction and ablation runs use inference seed 1234.
+The bootstrap uses an independent NumPy generator with seed 1234. Full
+worker-level configuration and provenance remain machine-readable in
+\path{paper/data/training_run.json}.
+
 
 \section{Additional Cross-Protocol Measurements}
 \label{app:extra}
@@ -837,8 +1094,8 @@ tables:
   \item On 48 external photographs with 2048-pixel targets, the full trained
   system improves over native SANA by 8.976 dB at the best reported $4\times$
   setting.
-  \item On a separate 32-photo adapter-control test, the correct image exceeds
-  an unrelated image by 1.056 dB. This is larger than the 0.079 dB content
+  \item On a separate 32-photo adapter-control test, matched guidance exceeds
+  mismatched guidance by 1.056 dB. This is larger than the 0.079 dB content
   effect on the 512-pixel ablation, demonstrating strong protocol dependence.
   \item Direct-refine checkpoint 4000 exceeds checkpoint 1000 by 0.047 dB on
   the reported 12-photo test.
@@ -871,7 +1128,7 @@ These values should be read as robustness observations, not pooled estimates.
     \bottomrule
   \end{tabular}
 \end{table}
-
+\iffalse
 \section{Reproducibility Checklist}
 \label{app:checklist}
 
@@ -889,11 +1146,16 @@ These values should be read as robustness observations, not pooled estimates.
   \item Independent re-run of the released package reproducing the reported
   per-image photo PSNR to within 0.003 dB: verified.
   \item Full per-image metric tables for all twelve photo and twelve anime
-  images: \todo{publish}.
+  images, including interpolation baselines: available in
+  \texttt{paper/data/revision/controlled\_x4\_12\_per\_image.csv}.
+  \item The 48-photo multi-scale per-image matrix and 95\% bootstrap intervals:
+  available in \texttt{paper/data/revision/}.
   \item LPIPS and DISTS on both shared sets: available in
   \texttt{paper/data/perceptual\_metrics.json}.
-  \item No-reference IQA, FID, and human preference: \todo{run}.
-  \item Public Gradio demo and arXiv page: \todo{add URLs}.
+  \item No-reference IQA, FID, and human preference: not measured.
+  \item Public Gradio demo:
+  \url{https://huggingface.co/spaces/Anonumous/LARP-Scaler}.
+  \item arXiv page: pending.
 \end{itemize}
-
+\fi
 \end{document}

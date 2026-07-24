@@ -9,6 +9,7 @@ import json
 import math
 from pathlib import Path
 
+import pypdfium2 as pdfium
 from reportlab.pdfgen import canvas as pdf_canvas
 
 
@@ -22,6 +23,8 @@ COLORS = {
     "Real-ESRGAN": "#f59e0b",
     "PiD": "#db2777",
     "LUA": "#10b981",
+    "Lanczos": "#64748b",
+    "Bicubic": "#94a3b8",
     "neutral": "#64748b",
     "light": "#e2e8f0",
     "ink": "#0f172a",
@@ -133,6 +136,34 @@ class Figure:
         else:
             self.pdf.drawString(x, self._pdf_y(y), value)
 
+    def rotated_text(
+        self,
+        x: float,
+        y: float,
+        value: str,
+        *,
+        angle: float,
+        size: float = 12,
+        color: str = COLORS["ink"],
+        bold: bool = False,
+    ) -> None:
+        """Draw centered text rotated in the top-left SVG coordinate system."""
+        weight = "700" if bold else "400"
+        self.svg.append(
+            f'<text x="{x:.2f}" y="{y:.2f}" fill="{color}" '
+            f'font-family="Arial, Helvetica, sans-serif" font-size="{size:.2f}" '
+            f'font-weight="{weight}" text-anchor="middle" dominant-baseline="middle" '
+            f'transform="rotate({angle:.2f} {x:.2f} {y:.2f})">'
+            f"{html.escape(value)}</text>"
+        )
+        self.pdf.saveState()
+        self.pdf.translate(x, self._pdf_y(y))
+        self.pdf.rotate(-angle)
+        self.pdf.setFillColorRGB(*hex_rgb(color))
+        self.pdf.setFont("Helvetica-Bold" if bold else "Helvetica", size)
+        self.pdf.drawCentredString(0, -size * 0.35, value)
+        self.pdf.restoreState()
+
     def circle(self, x: float, y: float, radius: float, *, fill: str, stroke: str = COLORS["white"]) -> None:
         self.svg.append(
             f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{radius:.2f}" fill="{fill}" stroke="{stroke}"/>'
@@ -180,6 +211,13 @@ class Figure:
         self.svg_path.write_text("\n".join(self.svg) + "\n", encoding="utf-8")
         self.pdf.showPage()
         self.pdf.save()
+        document = pdfium.PdfDocument(str(self.pdf_path))
+        page = document[0]
+        bitmap = page.render(scale=2)
+        bitmap.to_pil().save(self.pdf_path.with_suffix(".png"))
+        bitmap.close()
+        page.close()
+        document.close()
 
 
 def node(fig: Figure, x: float, y: float, width: float, height: float, title: str, lines: list[str], color: str) -> None:
@@ -295,7 +333,7 @@ def quality(data: dict, output: Path) -> None:
             fig.rect(x, y, bar_width, bar_height, fill=COLORS[row["method"]], stroke=COLORS[row["method"]])
             precision = 2 if metric == "psnr_db" else 3
             fig.text(x + bar_width / 2, y - 7, f"{value:.{precision}f}", size=9, anchor="middle", bold=True)
-            fig.text(x + bar_width / 2, chart_y + 214, row["method"], size=9, anchor="middle")
+            fig.text(x + bar_width / 2, chart_y + 214, row["method"], size=8, anchor="middle")
     fig.save()
 
 
@@ -329,7 +367,14 @@ def latency(data: dict, output: Path) -> None:
             fig.rect(x, y, bar_width, bar_height, fill=COLORS[method], stroke=COLORS[method])
             fig.text(x + bar_width / 2, y - 7, f"{value:.2f}", size=8, anchor="middle")
         fig.text(center, y0 + height + 27, f"×{scale}", size=12, anchor="middle", bold=True)
-    fig.text(28, 240, "Median latency (s) ↓", size=11, bold=True)
+    fig.rotated_text(
+        28,
+        y0 + height / 2,
+        "Median latency (s)",
+        angle=-90,
+        size=11,
+        bold=True,
+    )
     legend_x = 230
     for index, method in enumerate(methods):
         x = legend_x + index * 190
@@ -345,16 +390,26 @@ def ablation(data: dict, output: Path) -> None:
         900,
         480,
         "Prompt and image-adapter ablation",
-        "Prompt changes provide small gains while the correct image adapter contributes roughly half a decibel.",
+        "Prompt changes provide small gains while matched guidance enters through the trained adapter branch.",
     )
     fig.text(450, 30, "Prompt × image-adapter interaction on 12 photographs", size=17, anchor="middle", bold=True)
-    fig.text(75, 66, "Tagged-prompt adapter gain: +0.514 dB", size=12, color=COLORS["LARP-Scaler"], bold=True)
+    fig.text(
+        75,
+        66,
+        "Branch-on gain with matched guidance: +0.514 dB",
+        size=12,
+        color=COLORS["LARP-Scaler"],
+        bold=True,
+    )
     rows = data["ablation_prompt_adapter_12_photos"]["rows"]
     prompts = ["Empty", "Detailed", "Detailed + photo"]
     x_positions = [190, 450, 710]
     y0, height, y_min, y_max = 100, 270, 31.2, 31.9
     axes(fig, 100, y0, 700, height, y_ticks=[31.2, 31.4, 31.6, 31.8], y_min=y_min, y_max=y_max)
-    for adapter, color, shape in (("Off", COLORS["neutral"], "circle"), ("Correct image", COLORS["LARP-Scaler"], "square")):
+    for adapter, color, shape in (
+        ("Off", COLORS["neutral"], "circle"),
+        ("Matched guidance", COLORS["LARP-Scaler"], "square"),
+    ):
         values = [
             next(row["psnr_db"] for row in rows if row["prompt"] == prompt and row["adapter"] == adapter)
             for prompt in prompts
@@ -372,7 +427,7 @@ def ablation(data: dict, output: Path) -> None:
     fig.circle(275, 445, 5, fill=COLORS["neutral"])
     fig.text(288, 449, "Adapter off", size=10)
     fig.rect(505, 440, 10, 10, fill=COLORS["LARP-Scaler"], stroke=COLORS["LARP-Scaler"])
-    fig.text(522, 449, "Correct image", size=10)
+    fig.text(522, 449, "Matched guidance", size=10)
     fig.save()
 
 
@@ -469,7 +524,7 @@ def main() -> None:
     ablation(data, args.output)
     dataset_composition(data, args.output)
     training_curve(training_data, args.output)
-    print(f"Generated seven SVG/PDF figure pairs in {args.output}")
+    print(f"Generated seven SVG/PDF/PNG figure sets in {args.output}")
 
 
 if __name__ == "__main__":

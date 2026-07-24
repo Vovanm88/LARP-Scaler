@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build JPEG and SVG qualitative montages from real benchmark images."""
+"""Build JPEG, SVG, and PDF qualitative montages from real benchmark images."""
 
 from __future__ import annotations
 
@@ -14,8 +14,17 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 CELL = 420
-HEADER = 60
-LABEL = 48
+HEADER = 72
+LABEL = 104
+
+
+def font(size: int, *, bold: bool = False) -> ImageFont.ImageFont:
+    """Load a readable cross-platform font, with a Pillow fallback."""
+    filename = "DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf"
+    try:
+        return ImageFont.truetype(filename, size)
+    except OSError:
+        return ImageFont.load_default()
 
 
 def fitted(image: Image.Image, size: int) -> Image.Image:
@@ -64,18 +73,27 @@ def main() -> None:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     montage = Image.new("RGB", (width, height), "white")
     draw = ImageDraw.Draw(montage)
-    header_font = ImageFont.load_default()
-    row_font = ImageFont.load_default()
+    header_font = font(24, bold=True)
+    row_font = font(20, bold=True)
     for index, column in enumerate(columns):
         text = column["label"]
         box = draw.textbbox((0, 0), text, font=header_font)
         x = LABEL + index * CELL + (CELL - (box[2] - box[0])) // 2
         draw.text((x, 20), text, fill="black", font=header_font)
     for row_index, case in enumerate(cases):
-        draw.text((8, HEADER + row_index * CELL + 12), case["label"], fill="black", font=row_font)
+        row_y = HEADER + row_index * CELL + CELL // 2
+        draw.text(
+            (LABEL // 2, row_y),
+            case["label"],
+            fill="black",
+            font=row_font,
+            anchor="mm",
+        )
         for column_index, image in enumerate(images[row_index]):
             montage.paste(image, (LABEL + column_index * CELL, HEADER + row_index * CELL))
     montage.save(args.output, "JPEG", quality=92, optimize=True, progressive=True)
+    pdf_path = args.output.with_suffix(".pdf")
+    montage.save(pdf_path, "PDF", resolution=300.0)
 
     svg_path = args.output.with_suffix(".svg")
     svg = [
@@ -92,7 +110,7 @@ def main() -> None:
     for row_index, case in enumerate(cases):
         cy = HEADER + row_index * CELL + CELL / 2
         svg.append(
-            f'<text x="26" y="{cy}" text-anchor="middle" transform="rotate(-90 26 {cy})" '
+            f'<text x="{LABEL / 2}" y="{cy}" text-anchor="middle" '
             f'font-family="Arial" font-size="18" font-weight="700">{html.escape(case["label"])}</text>'
         )
         for column_index, image in enumerate(images[row_index]):
@@ -107,7 +125,7 @@ def main() -> None:
             )
     svg.append("</svg>")
     svg_path.write_text("\n".join(svg) + "\n", encoding="utf-8")
-    print(f"Wrote {args.output} and {svg_path}")
+    print(f"Wrote {args.output}, {svg_path}, and {pdf_path}")
 
 
 if __name__ == "__main__":
