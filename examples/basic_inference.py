@@ -12,8 +12,8 @@ upscaler = LarpScaler.from_pretrained(MODEL_ID)
 image = upscaler.upscale(
     INPUT,
     scale=4,
-    steps=4,
-    noise_level=1.0,
+    steps=1,
+    noise_level=0.85,
     guidance_scale=4.5,
     seed=1234,
 )
